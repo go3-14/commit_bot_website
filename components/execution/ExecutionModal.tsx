@@ -175,106 +175,104 @@ export default function ExecutionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="bg-[#161b22] border-[#30363d] text-[#c9d1d9] sm:max-w-md shadow-2xl">
+      <DialogContent className="bg-[#182319] border-[#263626] text-[#dbead9] sm:max-w-md shadow-2xl font-mono">
         <DialogHeader>
-          <DialogTitle className="text-white text-base font-semibold flex items-center gap-2">
+          <DialogTitle className="text-[#dbead9] text-base font-mono flex items-center gap-2">
             {status === 'executing' && (
               <>
-                <Loader2 className="w-5 h-5 text-[#39d353] animate-spin" />
-                <span>Creating Backdated Commits...</span>
+                <Loader2 className="w-4 h-4 text-[#8cd48f] animate-spin" />
+                <span>creating commits...</span>
               </>
             )}
             {status === 'success' && (
               <>
-                <CheckCircle2 className="w-5 h-5 text-[#39d353]" />
-                <span className="text-white">Execution Complete!</span>
+                <CheckCircle2 className="w-4 h-4 text-[#8cd48f]" />
+                <span className="text-[#8cd48f]">execution complete</span>
               </>
             )}
             {status === 'error' && (
               <>
-                <XCircle className="w-5 h-5 text-[#f85149]" />
-                <span className="text-white">Execution Error</span>
+                <XCircle className="w-4 h-4 text-red-400" />
+                <span className="text-red-400">execution error</span>
               </>
             )}
-            {status === 'idle' && <span>Preparing Execution...</span>}
+            {status === 'idle' && <span>preparing execution...</span>}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-2 flex flex-col gap-4">
+        <div className="py-2 flex flex-col gap-4 font-mono">
           {status === 'executing' && (
             <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-[#8b949e]">Progress:</span>
-                <span className="text-white font-bold">{percentage}%</span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#607b62]">progress:</span>
+                <span className="text-[#8cd48f] font-bold">{percentage}%</span>
               </div>
 
-              <Progress value={percentage} className="h-2.5 bg-[#0d1117]" />
+              <Progress value={percentage} className="h-2 bg-[#111810]" />
 
-              <div className="flex flex-col gap-1.5 text-xs font-mono bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
+              <div className="flex flex-col gap-1.5 text-xs bg-[#111810] p-3 rounded-lg border border-[#263626]">
                 <div className="flex justify-between">
-                  <span className="text-[#8b949e]">Commits:</span>
-                  <span className="text-white font-semibold">
+                  <span className="text-[#607b62]">commits:</span>
+                  <span className="text-[#dbead9]">
                     {completed} / {total}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8b949e]">Current Date:</span>
-                  <span className="text-orange-400 font-semibold">{currentDate || '—'}</span>
+                  <span className="text-[#607b62]">current date:</span>
+                  <span className="text-[#8cd48f] font-bold">{currentDate || '-'}</span>
                 </div>
                 {lastSha && (
                   <div className="flex justify-between">
-                    <span className="text-[#8b949e]">Latest SHA:</span>
-                    <span className="text-[#388bfd] font-mono">{lastSha.slice(0, 7)}</span>
+                    <span className="text-[#607b62]">latest sha:</span>
+                    <span className="text-[#607b62]">{lastSha.slice(0, 7)}</span>
                   </div>
                 )}
               </div>
 
-              <span className="text-[11px] text-[#8b949e] italic text-center">
-                Please do not close this tab while commits are being chained to GitHub.
+              <span className="text-[11px] text-[#607b62] text-center">
+                keep this tab open while commits are being chained to github.
               </span>
             </div>
           )}
 
           {status === 'success' && (
             <div className="flex flex-col gap-3">
-              <div className="p-3 rounded-lg bg-[#0e4429]/40 border border-[#238636] text-xs text-[#3fb950] flex flex-col gap-1">
-                <span className="font-semibold text-white">
-                  Successfully pushed {completed} backdated commit{completed === 1 ? '' : 's'}!
+              <div className="p-3 rounded-lg bg-[#111810] border border-[#263626] text-xs text-[#8cd48f] flex flex-col gap-1">
+                <span className="font-bold">
+                  successfully pushed {completed} backdated commit{completed === 1 ? '' : 's'}
                 </span>
-                <span>Target repository: <strong>{selectedRepo?.repo}</strong></span>
+                <span className="text-[#607b62]">target repository: <strong className="text-[#dbead9]">{selectedRepo?.repo}</strong></span>
               </div>
 
-              <div className="text-xs text-[#8b949e] flex items-start gap-2 bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xs text-[#607b62] flex items-start gap-2 bg-[#111810] p-3 rounded-lg border border-[#263626]">
+                <AlertTriangle className="w-4 h-4 text-[#f59e0b] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Note:</strong> GitHub contribution graph can take between a few minutes to up to 24 hours to re-index and display your new commits.
+                  note: github contribution graph may take a few minutes to index and display your new commits.
                 </span>
               </div>
             </div>
           )}
 
           {status === 'error' && (
-            <div className="p-3 rounded-lg bg-red-950/40 border border-red-800 text-xs text-red-200 flex flex-col gap-2">
-              <span className="font-semibold text-white">Execution failed</span>
-              <p className="font-mono text-[11px]">{errorMsg}</p>
-              <span className="text-[#8b949e] text-[11px]">
-                Your queued commits have been preserved in your editor so you can retry.
+            <div className="p-3 rounded-lg bg-[#111810] border border-red-900/60 text-xs text-red-300 flex flex-col gap-2">
+              <span className="font-bold text-red-400">execution failed</span>
+              <p className="text-[11px] text-red-300">{errorMsg}</p>
+              <span className="text-[#607b62] text-[11px]">
+                queued commits are preserved so you can retry.
               </span>
             </div>
           )}
         </div>
 
-        <DialogFooter className="border-[#30363d]">
+        <DialogFooter className="border-[#263626] pt-2">
           {status === 'executing' && (
-            <Button
+            <button
               type="button"
-              variant="outline"
-              size="sm"
               onClick={handleClose}
-              className="border-[#30363d] bg-[#21262d] hover:bg-[#da3633]/20 hover:text-[#f85149] text-[#c9d1d9] text-xs"
+              className="text-xs px-3 py-1.5 rounded-lg bg-[#111810] border border-[#263626] text-[#607b62] hover:text-red-400 transition-all"
             >
-              Cancel Execution
-            </Button>
+              cancel
+            </button>
           )}
 
           {status === 'success' && (
@@ -283,10 +281,10 @@ export default function ExecutionModal({
                 href={repoUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs text-[#388bfd] hover:underline flex items-center gap-1"
+                className="text-xs text-[#607b62] hover:text-[#8cd48f] flex items-center gap-1 transition-all"
               >
                 <GitCommit className="w-3.5 h-3.5" />
-                <span>View on GitHub</span>
+                <span>view on github</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
 
@@ -294,31 +292,29 @@ export default function ExecutionModal({
                 type="button"
                 size="sm"
                 onClick={handleClose}
-                className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs"
+                className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs font-bold px-4"
               >
-                Close
+                close
               </Button>
             </div>
           )}
 
           {status === 'error' && (
             <div className="flex items-center gap-2 justify-end w-full">
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={handleClose}
-                className="border-[#30363d] bg-[#21262d] text-[#c9d1d9] text-xs"
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9]"
               >
-                Dismiss
-              </Button>
+                dismiss
+              </button>
               <Button
                 type="button"
                 size="sm"
                 onClick={runExecution}
-                className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs"
+                className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs font-bold px-4"
               >
-                Retry
+                retry
               </Button>
             </div>
           )}
