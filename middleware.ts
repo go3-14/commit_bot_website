@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('gh_token')?.value;
-
-  if (!token && req.nextUrl.pathname.startsWith('/dashboard')) {
-    const loginUrl = new URL('/', req.nextUrl.origin);
-    return NextResponse.redirect(loginUrl);
+  if (req.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/', req.nextUrl.origin));
   }
 
   return NextResponse.next();
