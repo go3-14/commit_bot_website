@@ -56,7 +56,7 @@ export default async function HomePage() {
     }
   }
 
-  // Guest / Unauthenticated mode — load directly into the interactive canvas!
+  // Guest / unauthenticated mode: load directly into interactive canvas
   const starterGraph = generateStarterGraph(currentYear);
 
   return (

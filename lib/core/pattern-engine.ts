@@ -27,7 +27,7 @@ export function textToPattern(
   for (const char of upperText) {
     const glyph = FONT_5x7[char];
     if (!glyph) {
-      // Unknown character — skip with a space gap
+      // Unknown character: skip with a space gap
       currentWeek += 2;
       continue;
     }

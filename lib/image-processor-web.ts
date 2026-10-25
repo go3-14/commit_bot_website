@@ -3,7 +3,7 @@ export interface ImageProcessorOptions {
   maxWidth?: number; // max columns (weeks), default 52
   mode: 'grayscale' | 'binary';
   invert: boolean;
-  threshold: number; // for binary mode, 0–255 (default 128)
+  threshold: number; // for binary mode, 0-255 (default 128)
   offset?: number; // week offset from start
 }
 
