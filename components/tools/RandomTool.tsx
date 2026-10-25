@@ -67,25 +67,25 @@ export default function RandomTool() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-lg bg-[#0d1117] border border-[#30363d]/80">
-      <div className="flex items-center justify-between border-b border-[#30363d]/60 pb-2">
-        <span className="text-xs font-semibold text-white flex items-center gap-2">
-          <Shuffle className="w-4 h-4 text-[#39d353]" />
-          <span>Random Commit Scatter</span>
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
+      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
+        <span className="text-xs text-[#dbead9] flex items-center gap-2">
+          <Shuffle className="w-4 h-4 text-[#8cd48f]" />
+          <span>random commit scatter</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-[#39d353] font-medium flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-[#8cd48f] flex items-center gap-1 animate-pulse">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-6">
-        <div className="w-[140px]">
-          <label className="text-[11px] text-[#8b949e] font-medium block mb-1">
-            Total Commits
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="w-[130px]">
+          <label className="text-[11px] text-[#607b62] block mb-1">
+            total commits
           </label>
           <Input
             type="number"
@@ -93,13 +93,13 @@ export default function RandomTool() {
             max={2000}
             value={totalCommits}
             onChange={(e) => setTotalCommits(Math.max(1, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#161b22] border-[#30363d] text-white font-mono"
+            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
           />
         </div>
 
-        <div className="w-[140px]">
-          <label className="text-[11px] text-[#8b949e] font-medium block mb-1">
-            Max Commits / Day
+        <div className="w-[130px]">
+          <label className="text-[11px] text-[#607b62] block mb-1">
+            max commits / day
           </label>
           <Input
             type="number"
@@ -107,17 +107,17 @@ export default function RandomTool() {
             max={10}
             value={maxPerDay}
             onChange={(e) => setMaxPerDay(Math.max(1, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#161b22] border-[#30363d] text-white font-mono"
+            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
           />
         </div>
 
-        <div className="flex items-center gap-4 pt-4">
-          <label className="flex items-center gap-2 cursor-pointer text-xs text-[#c9d1d9]">
+        <div className="flex items-center gap-3 pt-4">
+          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-[#607b62]">
             <Checkbox
               checked={weekdaysOnly}
               onCheckedChange={(checked) => setWeekdaysOnly(Boolean(checked))}
             />
-            <span>Weekdays only</span>
+            <span>weekdays only</span>
           </label>
         </div>
 
@@ -126,17 +126,17 @@ export default function RandomTool() {
             type="button"
             size="sm"
             onClick={handleScatter}
-            className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs h-8 px-5 font-semibold shadow-md shadow-[#238636]/20"
+            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold"
           >
-            Scatter {totalCommits} Commits
+            scatter {totalCommits}
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-[11px] text-[#8b949e]">
-        <AlertCircle className="w-3.5 h-3.5 text-[#388bfd]" />
+      <div className="flex items-center gap-2 text-[11px] text-[#607b62]">
+        <AlertCircle className="w-3.5 h-3.5 text-[#607b62]" />
         <span>
-          Distributes commits organically across random dates in {year} with randomized timestamps.
+          scatters commits across random dates in {year}.
         </span>
       </div>
     </div>
