@@ -6,8 +6,8 @@ interface GraphMonthLabelsProps {
 }
 
 const MONTH_NAMES = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+  'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
 ];
 
 export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
@@ -27,7 +27,7 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
   }
 
   return (
-    <div className="flex text-[11px] text-[#8b949e] font-mono h-5 relative select-none pl-8 mb-1.5">
+    <div className="flex text-[11px] text-[#607b62] font-mono h-5 relative select-none pl-14 mt-2">
       {monthLabels.map((item, idx) => {
         // Each column is 13px cell + 3px gap = 16px
         const left = item.weekIndex * 16;
@@ -35,7 +35,7 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
           <span
             key={idx}
             className="absolute"
-            style={{ left: `${left + 32}px` }}
+            style={{ left: `${left + 56}px` }}
           >
             {item.name}
           </span>
