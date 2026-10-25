@@ -36,14 +36,14 @@ export default function RepoSelector({
 
   if (!userLogin) {
     return (
-      <div className="flex items-center gap-2 text-xs text-[#8b949e]">
-        <FolderGit2 className="w-4 h-4 text-[#8b949e]" />
-        <span className="text-xs font-medium text-[#8b949e]">Target Repo:</span>
+      <div className="flex items-center gap-2 text-xs text-[#607b62] font-mono">
+        <FolderGit2 className="w-3.5 h-3.5 text-[#607b62]" />
+        <span>repo:</span>
         <Link
           href="/api/auth/github"
-          className="text-xs text-[#388bfd] hover:underline bg-[#0d1117] px-2.5 py-1 rounded border border-[#30363d] flex items-center gap-1.5"
+          className="text-xs text-[#607b62] hover:text-[#dbead9] bg-[#111810] px-2 py-0.5 rounded border border-[#263626] transition-all"
         >
-          <span>Connect GitHub to select repository</span>
+          <span>connect github</span>
         </Link>
       </div>
     );
@@ -110,31 +110,31 @@ export default function RepoSelector({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <FolderGit2 className="w-4 h-4 text-[#8b949e]" />
-      <span className="text-xs font-medium text-[#8b949e]">Target Repo:</span>
+    <div className="flex items-center gap-2 font-mono text-xs">
+      <FolderGit2 className="w-3.5 h-3.5 text-[#607b62]" />
+      <span className="text-[#607b62]">repo:</span>
 
       {!isCreating ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Select value={currentRepoName} onValueChange={handleSelectRepo}>
-            <SelectTrigger className="w-[220px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white">
-              <SelectValue placeholder="Select repository" />
+            <SelectTrigger className="w-[180px] sm:w-[210px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]">
+              <SelectValue placeholder="select repo" />
             </SelectTrigger>
-            <SelectContent className="bg-[#161b22] border-[#30363d] text-white text-xs">
-              <SelectItem value="__create_new__" className="text-[#39d353] font-medium border-b border-[#30363d] mb-1">
+            <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
+              <SelectItem value="__create_new__" className="text-[#8cd48f] font-mono border-b border-[#263626] mb-1">
                 <span className="flex items-center gap-1.5">
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create new repository...</span>
+                  <Plus className="w-3 h-3" />
+                  <span>create new repo...</span>
                 </span>
               </SelectItem>
 
               {repos.map((r) => (
-                <SelectItem key={r.name} value={r.name}>
+                <SelectItem key={r.name} value={r.name} className="font-mono">
                   <span className="flex items-center gap-1.5">
                     {r.private ? (
-                      <Lock className="w-3 h-3 text-[#8b949e]" />
+                      <Lock className="w-3 h-3 text-[#607b62]" />
                     ) : (
-                      <Globe className="w-3 h-3 text-[#8b949e]" />
+                      <Globe className="w-3 h-3 text-[#607b62]" />
                     )}
                     <span>{r.name}</span>
                   </span>
@@ -143,60 +143,57 @@ export default function RepoSelector({
             </SelectContent>
           </Select>
 
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
             onClick={() => setIsCreating(true)}
-            className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-2 gap-1"
+            className="h-8 px-2 rounded-md bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] hover:border-[#374d37] text-xs flex items-center gap-1 transition-all"
+            title="Create new repository"
           >
-            <Plus className="w-3.5 h-3.5 text-[#39d353]" />
-            <span className="hidden sm:inline">New</span>
-          </Button>
+            <Plus className="w-3 h-3 text-[#8cd48f]" />
+            <span className="hidden sm:inline">new</span>
+          </button>
         </div>
       ) : (
-        <form onSubmit={handleCreateRepo} className="flex items-center gap-2">
+        <form onSubmit={handleCreateRepo} className="flex items-center gap-1.5 font-mono">
           <Input
             type="text"
             value={newRepoName}
             onChange={(e) => setNewRepoName(e.target.value)}
             placeholder="repo-name"
-            className="w-[160px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white font-mono"
+            className="w-[140px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
             required
           />
 
-          <label className="flex items-center gap-1.5 text-xs text-[#8b949e] cursor-pointer">
+          <label className="flex items-center gap-1 text-xs text-[#607b62] cursor-pointer">
             <Checkbox
               checked={isPrivate}
               onCheckedChange={(checked) => setIsPrivate(Boolean(checked))}
             />
-            <span>Private</span>
+            <span>private</span>
           </label>
 
           <Button
             type="submit"
             size="sm"
             disabled={isSubmitting || !newRepoName.trim()}
-            className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs h-8 px-2.5 gap-1 disabled:opacity-50"
+            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-2.5 font-bold gap-1 disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
           >
             {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-            <span>Create</span>
+            <span>create</span>
           </Button>
 
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
             onClick={() => {
               setIsCreating(false);
               setError(null);
             }}
-            className="border-[#30363d] bg-[#21262d] text-[#8b949e] text-xs h-8 px-2"
+            className="h-8 px-2 rounded-md bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] text-xs transition-all"
           >
-            Cancel
-          </Button>
+            cancel
+          </button>
 
-          {error && <span className="text-[11px] text-[#f85149]">{error}</span>}
+          {error && <span className="text-[11px] text-red-400">{error}</span>}
         </form>
       )}
     </div>
