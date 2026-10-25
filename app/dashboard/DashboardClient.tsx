@@ -6,12 +6,11 @@ import Image from 'next/image';
 import { 
   GitCommit, 
   LogOut, 
-  Calendar, 
   CheckCircle2,
-  Mail,
-  ArrowRight
+  ArrowRight,
+  User as UserIcon
 } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -62,7 +61,7 @@ export default function DashboardClient({
   initialRepos,
   currentYear,
 }: DashboardClientProps) {
-  const { year, setYear, setSelectedRepo } = useGraphStore();
+  const { year, setYear, setSelectedRepo, getCommitPlan } = useGraphStore();
   const [graphData, setGraphData] = useState<ContributionDay[][]>(initialGraph);
   const [isLoadingGraph, setIsLoadingGraph] = useState<boolean>(false);
   const [isExecutionModalOpen, setIsExecutionModalOpen] = useState<boolean>(false);
@@ -83,6 +82,12 @@ export default function DashboardClient({
 
   // Available years: current year down to 6 years back
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
+
+  // Computed queue stats for Monkeytype top stats card
+  const plan = getCommitPlan(year);
+  const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
+  const totalDates = plan.length;
+  const estimatedApiCalls = totalCommits > 0 ? totalCommits * 4 + 1 : 0;
 
   // Refetch contribution graph
   const refetchGraph = async (targetYear: number) => {
@@ -112,7 +117,7 @@ export default function DashboardClient({
   };
 
   const handleExecutionSuccess = async () => {
-    setSuccessBanner('Commits successfully pushed to GitHub! Refreshing contribution data...');
+    setSuccessBanner('commits pushed to github. refreshing data...');
     await refetchGraph(year);
     setTimeout(() => setSuccessBanner(null), 8000);
   };
@@ -128,22 +133,20 @@ export default function DashboardClient({
   const authorEmail = email || user?.email || (user ? `${user.login}@users.noreply.github.com` : '');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0d1117] text-[#c9d1d9] font-sans">
-      {/* Sticky Top Header */}
-      <header className="border-b border-[#30363d] bg-[#161b22]/95 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+    <div className="min-h-screen flex flex-col bg-[#111810] text-[#dbead9] font-mono select-none">
+      {/* Minimalist Monkeytype Top Navigation Bar */}
+      <header className="border-b border-[#263626] bg-[#111810]/95 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo & Main Context Controls */}
-          <div className="flex items-center gap-5">
-            <Link href="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-[#238636] flex items-center justify-center text-white shadow-md shadow-[#238636]/20">
-                <GitCommit className="w-5 h-5" />
-              </div>
-              <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-1">
-                commit-bot<span className="text-[#39d353] font-mono text-xs">.web</span>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2 shrink-0 text-[#8cd48f] hover:text-[#99d19c] transition-colors">
+              <GitCommit className="w-5 h-5" />
+              <span className="font-bold text-sm tracking-tight">
+                commit-bot<span className="text-[#607b62] text-xs">.web</span>
               </span>
             </Link>
 
-            <div className="h-5 w-px bg-[#30363d] hidden sm:block" />
+            <div className="h-4 w-px bg-[#263626] hidden sm:block" />
 
             {/* Target Repo Picker */}
             <div className="hidden md:flex items-center">
@@ -151,15 +154,15 @@ export default function DashboardClient({
             </div>
 
             {/* Year Selector */}
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-[#8b949e]" />
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-[#607b62]">year:</span>
               <Select value={year.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-[100px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white font-mono">
-                  <SelectValue placeholder="Year" />
+                <SelectTrigger className="w-[85px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]">
+                  <SelectValue placeholder="year" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#161b22] border-[#30363d] text-white text-xs font-mono">
+                <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
                   {years.map((y) => (
-                    <SelectItem key={y} value={y.toString()}>
+                    <SelectItem key={y} value={y.toString()} className="font-mono">
                       {y}
                     </SelectItem>
                   ))}
@@ -169,56 +172,42 @@ export default function DashboardClient({
           </div>
 
           {/* User Profile or Connect GitHub Button */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {user ? (
               <>
-                {authorEmail && (
-                  <div className="hidden lg:flex items-center gap-1.5 text-xs text-[#8b949e] font-mono bg-[#0d1117] px-2.5 py-1 rounded-full border border-[#30363d]">
-                    <Mail className="w-3 h-3 text-[#39d353]" />
-                    <span className="text-white truncate max-w-[170px]" title={authorEmail}>
-                      {authorEmail}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-full py-1 px-2.5">
-                  {user.avatarUrl && (
+                <div className="flex items-center gap-2 bg-[#182319] border border-[#263626] rounded-lg py-1 px-2.5">
+                  {user.avatarUrl ? (
                     <Image
                       src={user.avatarUrl}
                       alt={user.login}
-                      width={22}
-                      height={22}
-                      className="rounded-full ring-1 ring-[#30363d]"
+                      width={18}
+                      height={18}
+                      className="rounded-full ring-1 ring-[#263626]"
                     />
+                  ) : (
+                    <UserIcon className="w-3.5 h-3.5 text-[#607b62]" />
                   )}
-                  <span className="text-xs font-semibold text-white">
+                  <span className="text-xs text-[#dbead9]">
                     @{user.login}
                   </span>
                 </div>
 
                 <Link
                   href="/api/auth/logout"
-                  className={buttonVariants({
-                    variant: 'outline',
-                    size: 'sm',
-                    className: 'border-[#30363d] bg-[#21262d] hover:bg-[#da3633]/20 hover:text-[#f85149] hover:border-[#da3633]/50 text-[#c9d1d9] text-xs h-8 px-2.5 gap-1',
-                  })}
+                  className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded-md bg-[#182319] border border-[#263626] flex items-center gap-1 transition-all"
+                  title="Logout"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <LogOut className="w-3 h-3" />
+                  <span className="hidden sm:inline">logout</span>
                 </Link>
               </>
             ) : (
               <Link
                 href="/api/auth/github"
-                className={buttonVariants({
-                  variant: 'default',
-                  size: 'sm',
-                  className: 'bg-[#238636] hover:bg-[#2ea043] text-white font-medium text-xs h-8 px-3 gap-2 shadow-sm shadow-[#238636]/30',
-                })}
+                className="text-xs font-bold text-[#111810] bg-[#99d19c] hover:bg-[#8cd48f] px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
-                <span>Connect GitHub</span>
+                <span>connect github</span>
               </Link>
             )}
           </div>
@@ -226,25 +215,69 @@ export default function DashboardClient({
       </header>
 
       {/* Main Workspace */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-6 w-full flex flex-col gap-5">
+      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-5">
         {/* Mobile Repo Selector */}
-        <div className="flex md:hidden items-center justify-between p-3 rounded-lg border border-[#30363d] bg-[#161b22]">
+        <div className="flex md:hidden items-center justify-between p-3 rounded-xl border border-[#263626] bg-[#182319]">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
 
         {/* Execution Success Notification */}
         {successBanner && (
-          <div className="p-3 rounded-xl bg-[#0e4429]/60 border border-[#238636] text-[#3fb950] text-xs flex items-center gap-2 animate-in fade-in">
+          <div className="p-3 rounded-xl bg-[#182319] border border-[#8cd48f]/50 text-[#8cd48f] text-xs flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successBanner}</span>
           </div>
         )}
 
+        {/* Monkeytype User Profile & Stats Header Card */}
+        <section className="w-full bg-[#182319] border border-[#263626] rounded-xl p-5 flex flex-wrap items-center justify-between gap-6">
+          {/* Left: User Identity */}
+          <div className="flex items-center gap-3.5">
+            {user?.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={user.login}
+                width={44}
+                height={44}
+                className="rounded-full ring-2 ring-[#263626]"
+              />
+            ) : (
+              <div className="w-11 h-11 rounded-full bg-[#111810] border border-[#263626] flex items-center justify-center text-[#607b62]">
+                <UserIcon className="w-5 h-5" />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-[#dbead9]">
+                {user ? `@${user.login}` : 'guest session'}
+              </span>
+              <span className="text-xs text-[#607b62]">
+                {user ? (authorEmail || 'github authenticated') : 'interactive canvas (login to execute)'}
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Monkeytype Stat Columns */}
+          <div className="flex items-center gap-8 sm:gap-12">
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">queued commits</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{totalCommits}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">active dates</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{totalDates}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">api calls</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{estimatedApiCalls}</span>
+            </div>
+          </div>
+        </section>
+
         {/* The Hero: GitHub Contribution Heatmap */}
         <section className="w-full flex flex-col items-center">
           {isLoadingGraph && (
-            <div className="text-xs text-[#8b949e] font-mono animate-pulse mb-1">
-              Synchronizing contribution data with GitHub GraphQL...
+            <div className="text-xs text-[#607b62] animate-pulse mb-1">
+              synchronizing contribution data...
             </div>
           )}
           <ContributionGraph realData={graphData} year={year} />
@@ -273,36 +306,31 @@ export default function DashboardClient({
 
         {/* Auth prompt modal if unauthenticated user clicks Execute */}
         <Dialog open={isAuthPromptOpen} onOpenChange={setIsAuthPromptOpen}>
-          <DialogContent className="bg-[#161b22] border-[#30363d] text-[#c9d1d9] sm:max-w-md shadow-2xl">
+          <DialogContent className="bg-[#182319] border-[#263626] text-[#dbead9] sm:max-w-md shadow-2xl font-mono">
             <DialogHeader>
-              <DialogTitle className="text-white text-base flex items-center gap-2">
-                <GithubIcon className="w-5 h-5 text-white" />
-                <span>Connect GitHub to Execute Commits</span>
+              <DialogTitle className="text-[#dbead9] text-base flex items-center gap-2">
+                <GithubIcon className="w-4 h-4 text-[#8cd48f]" />
+                <span>connect github</span>
               </DialogTitle>
-              <DialogDescription className="text-xs text-[#8b949e] pt-1">
-                Your commits have been queued locally in your browser. To push them with backdated timestamps to your repository, please connect your GitHub account via OAuth.
+              <DialogDescription className="text-xs text-[#607b62] pt-1">
+                commits are stored locally in your browser. connect your github account to push them with backdated timestamps to your repository.
               </DialogDescription>
             </DialogHeader>
 
-            <DialogFooter className="border-[#30363d] pt-2">
-              <Button
+            <DialogFooter className="border-[#263626] pt-2">
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={() => setIsAuthPromptOpen(false)}
-                className="border-[#30363d] bg-[#21262d] text-[#c9d1d9] text-xs"
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] transition-all"
               >
-                Continue Painting
-              </Button>
+                continue painting
+              </button>
 
               <Link
                 href="/api/auth/github"
-                className={buttonVariants({
-                  size: 'sm',
-                  className: 'bg-[#238636] hover:bg-[#2ea043] text-white text-xs gap-1.5',
-                })}
+                className="text-xs font-bold text-[#111810] bg-[#99d19c] hover:bg-[#8cd48f] px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
               >
-                <span>Connect GitHub</span>
+                <span>connect github</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </DialogFooter>
