@@ -1,22 +1,17 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { JetBrains_Mono } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-mono',
   subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'commit-bot-web | Paint your GitHub contribution graph',
-  description:
-    'Visual canvas to paint, write, and scatter custom patterns on your GitHub contribution graph using the GitHub Git Data API.',
+  title: 'commit-bot',
+  description: 'interactive github contribution graph canvas',
 };
 
 export default function RootLayout({
@@ -27,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-[#0d1117] text-[#c9d1d9] selection:bg-[#238636] selection:text-white`}
+        className={`${jetbrainsMono.variable} font-mono antialiased min-h-screen bg-[#111810] text-[#dbead9] selection:bg-[#99d19c] selection:text-[#111810]`}
       >
         <TooltipProvider delay={150}>
           {children}
