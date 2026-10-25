@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { FolderGit2, Plus, Lock, Globe, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,13 +17,13 @@ import { RepoInfo } from '@/types';
 import { useGraphStore } from '@/store/graph-store';
 
 interface RepoSelectorProps {
-  userLogin: string;
-  initialRepos: RepoInfo[];
+  userLogin?: string | null;
+  initialRepos?: RepoInfo[];
 }
 
 export default function RepoSelector({
   userLogin,
-  initialRepos,
+  initialRepos = [],
 }: RepoSelectorProps) {
   const { selectedRepo, setSelectedRepo } = useGraphStore();
 
@@ -32,6 +33,21 @@ export default function RepoSelector({
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!userLogin) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-[#8b949e]">
+        <FolderGit2 className="w-4 h-4 text-[#8b949e]" />
+        <span className="text-xs font-medium text-[#8b949e]">Target Repo:</span>
+        <Link
+          href="/api/auth/github"
+          className="text-xs text-[#388bfd] hover:underline bg-[#0d1117] px-2.5 py-1 rounded border border-[#30363d] flex items-center gap-1.5"
+        >
+          <span>Connect GitHub to select repository</span>
+        </Link>
+      </div>
+    );
+  }
 
   const currentRepoName = selectedRepo?.repo || repos[0]?.name || '';
 
