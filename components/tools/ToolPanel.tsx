@@ -21,6 +21,7 @@ import {
 import { useGraphStore } from '@/store/graph-store';
 import { ToolType } from '@/types';
 import PatternTool from './PatternTool';
+import ImageTool from './ImageTool';
 
 interface ToolPanelProps {
   children?: React.ReactNode;
@@ -88,6 +89,7 @@ export default function ToolPanel({ children }: ToolPanelProps) {
 
       {/* Active tool specific configuration */}
       {activeTool === 'pattern' && <PatternTool />}
+      {activeTool === 'image' && <ImageTool />}
 
       {children && (
         <div className="pt-1">
