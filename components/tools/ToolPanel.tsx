@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { useGraphStore } from '@/store/graph-store';
 import { ToolType } from '@/types';
+import PatternTool from './PatternTool';
 
 interface ToolPanelProps {
   children?: React.ReactNode;
@@ -85,7 +86,9 @@ export default function ToolPanel({ children }: ToolPanelProps) {
         </div>
       </div>
 
-      {/* Active tool specific configuration (if provided) */}
+      {/* Active tool specific configuration */}
+      {activeTool === 'pattern' && <PatternTool />}
+
       {children && (
         <div className="pt-1">
           {children}
