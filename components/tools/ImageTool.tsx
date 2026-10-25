@@ -91,28 +91,28 @@ export default function ImageTool() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-lg bg-[#0d1117] border border-[#30363d]/80">
-      <div className="flex items-center justify-between border-b border-[#30363d]/60 pb-2">
-        <span className="text-xs font-semibold text-white flex items-center gap-2">
-          <ImageIcon className="w-4 h-4 text-[#39d353]" />
-          <span>Image-to-Graph Canvas Converter</span>
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
+      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
+        <span className="text-xs text-[#dbead9] flex items-center gap-2">
+          <ImageIcon className="w-4 h-4 text-[#8cd48f]" />
+          <span>image converter</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-[#39d353] font-medium flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-[#8cd48f] flex items-center gap-1 animate-pulse">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Upload Drop Zone */}
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-[#30363d] hover:border-[#388bfd] rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer bg-[#161b22]/50 transition-colors"
+          className="border-2 border-dashed border-[#263626] hover:border-[#8cd48f]/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer bg-[#182319] transition-colors"
         >
           <input
             type="file"
@@ -128,20 +128,20 @@ export default function ImageTool() {
               <img
                 src={imagePreviewUrl}
                 alt="Uploaded preview"
-                className="max-h-24 max-w-[160px] object-contain rounded-md border border-[#30363d]"
+                className="max-h-24 max-w-[160px] object-contain rounded-md border border-[#263626]"
               />
-              <span className="text-xs text-[#8b949e]">Click or drag to replace image</span>
+              <span className="text-xs text-[#607b62]">click to replace</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center text-[#8b949e]">
-                <UploadCloud className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-full bg-[#111810] border border-[#263626] flex items-center justify-center text-[#607b62]">
+                <UploadCloud className="w-4 h-4" />
               </div>
-              <span className="text-xs font-medium text-white">
-                Drag & drop any image here, or click to browse
+              <span className="text-xs text-[#dbead9]">
+                drop image or click to browse
               </span>
-              <span className="text-[11px] text-[#8b949e]">
-                PNG, JPG, or SVG (automatically scaled to 7 rows)
+              <span className="text-[11px] text-[#607b62]">
+                scaled to 7-row canvas height
               </span>
             </div>
           )}
@@ -151,41 +151,41 @@ export default function ImageTool() {
         <div className="flex flex-col gap-3 justify-between">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#8b949e] font-medium flex items-center gap-1.5">
+              <span className="text-xs text-[#607b62] flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5" />
-                <span>Conversion Mode:</span>
+                <span>mode:</span>
               </span>
               <div className="flex items-center gap-1.5">
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant={mode === 'grayscale' ? 'default' : 'outline'}
                   onClick={() => setMode('grayscale')}
-                  className={`text-xs h-7 px-2.5 ${
-                    mode === 'grayscale' ? 'bg-[#238636] text-white' : 'border-[#30363d] bg-[#161b22] text-[#c9d1d9]'
+                  className={`text-xs px-2.5 py-1 rounded-md transition-all ${
+                    mode === 'grayscale'
+                      ? 'bg-[#99d19c] text-[#111810] font-bold'
+                      : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
                   }`}
                 >
-                  Grayscale (4 levels)
-                </Button>
-                <Button
+                  grayscale
+                </button>
+                <button
                   type="button"
-                  size="sm"
-                  variant={mode === 'binary' ? 'default' : 'outline'}
                   onClick={() => setMode('binary')}
-                  className={`text-xs h-7 px-2.5 ${
-                    mode === 'binary' ? 'bg-[#238636] text-white' : 'border-[#30363d] bg-[#161b22] text-[#c9d1d9]'
+                  className={`text-xs px-2.5 py-1 rounded-md transition-all ${
+                    mode === 'binary'
+                      ? 'bg-[#99d19c] text-[#111810] font-bold'
+                      : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
                   }`}
                 >
-                  Binary (B&W)
-                </Button>
+                  binary
+                </button>
               </div>
             </div>
 
             {mode === 'binary' && (
               <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between text-xs text-[#8b949e]">
-                  <span>Threshold</span>
-                  <span className="font-mono text-white">{threshold}</span>
+                <div className="flex justify-between text-xs text-[#607b62]">
+                  <span>threshold</span>
+                  <span className="text-[#8cd48f]">{threshold}</span>
                 </div>
                 <Slider
                   min={0}
@@ -201,23 +201,23 @@ export default function ImageTool() {
             )}
 
             <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#c9d1d9]">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#607b62]">
                 <Checkbox
                   checked={invert}
                   onCheckedChange={(checked) => setInvert(Boolean(checked))}
                 />
-                <span>Invert colors (negative)</span>
+                <span>invert</span>
               </label>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#8b949e]">Start Week:</span>
+                <span className="text-xs text-[#607b62]">start week:</span>
                 <Input
                   type="number"
                   min={0}
                   max={50}
                   value={offset}
                   onChange={(e) => setOffset(Math.max(0, parseInt(e.target.value || '0', 10)))}
-                  className="w-16 h-7 text-xs bg-[#161b22] border-[#30363d] text-white font-mono"
+                  className="w-14 h-7 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
                 />
               </div>
             </div>
@@ -225,12 +225,12 @@ export default function ImageTool() {
 
           {/* Processed Pixel Matrix Preview */}
           {processed && (
-            <div className="mt-2 p-2 rounded-md bg-[#161b22] border border-[#30363d] flex flex-col gap-1">
-              <div className="flex items-center justify-between text-[10px] text-[#8b949e] font-mono">
-                <span>Canvas preview ({processed.width} cols × 7 rows)</span>
-                <span>{processed.totalCommits} commits queued</span>
+            <div className="p-2 rounded-lg bg-[#182319] border border-[#263626] flex flex-col gap-1">
+              <div className="flex items-center justify-between text-[10px] text-[#607b62]">
+                <span>preview ({processed.width}w x 7h)</span>
+                <span className="text-[#8cd48f]">{processed.totalCommits} commits</span>
               </div>
-              <div className="font-mono text-[9px] leading-[9px] tracking-widest text-[#39d353] overflow-x-auto whitespace-pre bg-[#0d1117] p-1.5 rounded">
+              <div className="font-mono text-[9px] leading-[9px] tracking-widest text-[#8cd48f] overflow-x-auto whitespace-pre bg-[#111810] p-1.5 rounded border border-[#263626]">
                 {processed.preview.join('\n')}
               </div>
             </div>
@@ -242,9 +242,9 @@ export default function ImageTool() {
               size="sm"
               disabled={!processed}
               onClick={handleApply}
-              className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs h-8 px-4 font-semibold shadow-md shadow-[#238636]/20 disabled:opacity-50"
+              className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
             >
-              Apply Image to Graph
+              apply image
             </Button>
           </div>
         </div>
