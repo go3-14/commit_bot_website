@@ -2,16 +2,6 @@
 
 import React, { useState } from 'react';
 import { 
-  Paintbrush, 
-  Eraser, 
-  Type, 
-  Image as ImageIcon, 
-  Sparkles, 
-  Shuffle, 
-  SlidersHorizontal 
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -28,143 +18,153 @@ export default function ToolPanel() {
   const { activeTool, setActiveTool, intensity, setIntensity } = useGraphStore();
   const [activeSheet, setActiveSheet] = useState<'pattern' | 'image' | 'fill' | 'random' | null>(null);
 
-  const handleToolClick = (toolId: 'paint' | 'erase' | 'pattern' | 'image' | 'fill' | 'random') => {
-    if (toolId === 'paint' || toolId === 'erase') {
-      setActiveTool(toolId);
-      setActiveSheet(null);
-    } else {
-      setActiveSheet(toolId);
-    }
+  const isPaintActive = (n: number) => activeTool === 'paint' && intensity === n;
+  const isEraseActive = activeTool === 'erase';
+
+  const selectPaint = (n: number) => {
+    setActiveTool('paint');
+    setIntensity(n);
+    setActiveSheet(null);
+  };
+
+  const selectErase = () => {
+    setActiveTool('erase');
+    setActiveSheet(null);
   };
 
   return (
-    <>
-      <div className="w-full flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl border border-[#30363d] bg-[#161b22] shadow-md">
-        {/* Left: Mode Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Paint Button */}
-          <Button
-            type="button"
-            size="sm"
-            variant={activeTool === 'paint' ? 'default' : 'outline'}
-            onClick={() => handleToolClick('paint')}
-            className={`text-xs h-8 px-3 gap-1.5 transition-all ${
-              activeTool === 'paint'
-                ? 'bg-[#238636] hover:bg-[#2ea043] text-white font-semibold shadow-sm'
-                : 'border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9]'
-            }`}
-          >
-            <Paintbrush className="w-3.5 h-3.5" />
-            <span>Paint</span>
-          </Button>
+    <div className="w-full flex flex-col gap-2 font-mono select-none">
+      <div className="flex items-center gap-1.5 text-xs text-[#607b62] px-1">
+        <span>▼ tools</span>
+      </div>
 
-          {/* Inline Intensity Pills (when paint is active) */}
-          {activeTool === 'paint' && (
-            <div className="flex items-center gap-1 bg-[#0d1117] border border-[#30363d] rounded-lg px-2 py-0.5 animate-in fade-in">
-              <span className="text-[10px] text-[#8b949e] font-mono mr-1">Intensity:</span>
-              {[1, 3, 5, 10].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setIntensity(n)}
-                  className={`w-6 h-5 rounded text-[11px] font-mono font-medium transition-all ${
-                    intensity === n
-                      ? 'bg-[#238636] text-white font-bold shadow-xs'
-                      : 'text-[#8b949e] hover:text-white hover:bg-[#21262d]'
-                  }`}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Segmented Filter Pills matching Monkeytype */}
+      <div className="w-full flex flex-wrap items-center gap-1.5 bg-[#182319] border border-[#263626] p-2 rounded-xl">
+        <button
+          type="button"
+          onClick={() => selectPaint(1)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            isPaintActive(1)
+              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          paint (1)
+        </button>
 
-          {/* Erase Button */}
-          <Button
-            type="button"
-            size="sm"
-            variant={activeTool === 'erase' ? 'default' : 'outline'}
-            onClick={() => handleToolClick('erase')}
-            className={`text-xs h-8 px-3 gap-1.5 transition-all ${
-              activeTool === 'erase'
-                ? 'bg-[#da3633] hover:bg-[#b62324] text-white font-semibold shadow-sm'
-                : 'border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9]'
-            }`}
-          >
-            <Eraser className="w-3.5 h-3.5" />
-            <span>Erase</span>
-          </Button>
+        <button
+          type="button"
+          onClick={() => selectPaint(3)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            isPaintActive(3)
+              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          paint (3)
+        </button>
 
-          <div className="h-4 w-px bg-[#30363d] mx-1 hidden sm:block" />
+        <button
+          type="button"
+          onClick={() => selectPaint(5)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            isPaintActive(5)
+              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          paint (5)
+        </button>
 
-          {/* Generators */}
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => handleToolClick('pattern')}
-            className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-3 gap-1.5"
-          >
-            <Type className="w-3.5 h-3.5 text-blue-400" />
-            <span>Text & Shapes</span>
-          </Button>
+        <button
+          type="button"
+          onClick={() => selectPaint(10)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            isPaintActive(10)
+              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          paint (10)
+        </button>
 
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => handleToolClick('image')}
-            className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-3 gap-1.5"
-          >
-            <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
-            <span>Image Converter</span>
-          </Button>
+        <button
+          type="button"
+          onClick={selectErase}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            isEraseActive
+              ? 'bg-[#da3633] text-white font-bold shadow-sm'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          erase
+        </button>
 
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => handleToolClick('fill')}
-            className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-3 gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Fill Year</span>
-          </Button>
+        <div className="h-4 w-px bg-[#263626] mx-1 hidden sm:block" />
 
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => handleToolClick('random')}
-            className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-3 gap-1.5"
-          >
-            <Shuffle className="w-3.5 h-3.5 text-amber-400" />
-            <span>Random Scatter</span>
-          </Button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveSheet('pattern')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            activeSheet === 'pattern'
+              ? 'bg-[#99d19c] text-[#111810] font-bold'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          text & shapes
+        </button>
 
-        {/* Right Note */}
-        <div className="text-[11px] text-[#8b949e] flex items-center gap-1.5 hidden md:flex">
-          <SlidersHorizontal className="w-3 h-3 text-[#388bfd]" />
-          <span>Active mode: <strong className="text-white capitalize">{activeTool}</strong></span>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveSheet('image')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            activeSheet === 'image'
+              ? 'bg-[#99d19c] text-[#111810] font-bold'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          image
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSheet('fill')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            activeSheet === 'fill'
+              ? 'bg-[#99d19c] text-[#111810] font-bold'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          fill year
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSheet('random')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+            activeSheet === 'random'
+              ? 'bg-[#99d19c] text-[#111810] font-bold'
+              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+          }`}
+        >
+          random
+        </button>
       </div>
 
       {/* Slide-In Side Sheets for Generators */}
       <Sheet open={activeSheet !== null} onOpenChange={(open) => !open && setActiveSheet(null)}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-lg bg-[#161b22] border-l border-[#30363d] text-[#c9d1d9] p-6 shadow-2xl overflow-y-auto"
+          className="w-full sm:max-w-md bg-[#182319] border-l border-[#263626] text-[#dbead9] p-6 shadow-2xl overflow-y-auto font-mono"
         >
           {activeSheet === 'pattern' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-white text-base flex items-center gap-2">
-                  <Type className="w-4 h-4 text-blue-400" />
-                  <span>Text Typography & Shape Presets</span>
+                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                  text & shapes
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#8b949e]">
-                  Generate pixel-perfect letters with 5×7 font or stamp classic shapes onto your calendar.
+                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                  convert text with 5x7 font or stamps to commits
                 </SheetDescription>
               </SheetHeader>
               <PatternTool />
@@ -174,12 +174,11 @@ export default function ToolPanel() {
           {activeSheet === 'image' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-white text-base flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-purple-400" />
-                  <span>Image-to-Graph Converter</span>
+                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                  image converter
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#8b949e]">
-                  Upload any image. Client-side canvas will scale it to 7 rows and map pixel dark levels to commit counts.
+                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                  convert pixel data to 7 row commit grid
                 </SheetDescription>
               </SheetHeader>
               <ImageTool />
@@ -189,12 +188,11 @@ export default function ToolPanel() {
           {activeSheet === 'fill' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-white text-base flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-400" />
-                  <span>Full Year Fill Generator</span>
+                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                  fill year
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#8b949e]">
-                  Quickly populate an entire calendar year with randomized organic commit activity.
+                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                  fill full year with randomized daily activity
                 </SheetDescription>
               </SheetHeader>
               <FillTool />
@@ -204,12 +202,11 @@ export default function ToolPanel() {
           {activeSheet === 'random' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-white text-base flex items-center gap-2">
-                  <Shuffle className="w-4 h-4 text-amber-400" />
-                  <span>Random Commit Scatter</span>
+                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                  random scatter
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#8b949e]">
-                  Scatter N commits organically across random dates within the year.
+                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                  scatter commits randomly across dates
                 </SheetDescription>
               </SheetHeader>
               <RandomTool />
@@ -217,6 +214,6 @@ export default function ToolPanel() {
           )}
         </SheetContent>
       </Sheet>
-    </>
+    </div>
   );
 }
