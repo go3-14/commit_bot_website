@@ -2,13 +2,12 @@
 
 import React, { useState } from 'react';
 import { 
-  Trash2, 
   Play, 
-  Calendar, 
-  AlertTriangle, 
+  Trash2, 
   ChevronDown, 
   ChevronUp, 
-  Clock 
+  Clock, 
+  AlertTriangle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGraphStore } from '@/store/graph-store';
@@ -19,77 +18,71 @@ interface CommitQueueProps {
 }
 
 export default function CommitQueue({ onExecute, disabled = false }: CommitQueueProps) {
-  const { queue, clearQueue, year, getCommitPlan, selectedRepo } = useGraphStore();
+  const { clearQueue, year, getCommitPlan, selectedRepo } = useGraphStore();
   const [showPreview, setShowPreview] = useState(false);
 
   const plan = getCommitPlan(year);
   const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
   const totalDates = plan.length;
-  // Each commit requires 4 GitHub API calls (commit -> blob -> tree -> commit) + 1 final ref update
   const estimatedApiCalls = totalCommits * 4 + 1;
   const isHighApiUsage = estimatedApiCalls > 3500;
 
   return (
-    <div className="w-full border-t border-[#30363d] pt-4 mt-2">
-      <div className="flex flex-wrap items-center justify-between gap-4 p-3 rounded-xl border border-[#30363d] bg-[#161b22] shadow-lg">
-        {/* Left: Queue Stats */}
+    <div className="w-full font-mono select-none">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-[#263626] bg-[#182319]">
+        {/* Left Stats */}
         <div className="flex flex-wrap items-center gap-3">
           {totalCommits > 0 ? (
             <>
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse" />
-                <span className="text-xs font-semibold text-white">
-                  Queued: <span className="text-orange-400 font-bold">{totalCommits.toLocaleString()}</span> commit{totalCommits === 1 ? '' : 's'} across{' '}
-                  <span className="text-orange-400 font-bold">{totalDates}</span> date{totalDates === 1 ? '' : 's'}
+                <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
+                <span className="text-xs text-[#dbead9]">
+                  queued: <strong className="text-[#8cd48f]">{totalCommits}</strong> commits across{' '}
+                  <strong className="text-[#8cd48f]">{totalDates}</strong> dates
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[11px] text-[#8b949e] font-mono bg-[#0d1117] px-2 py-0.5 rounded border border-[#30363d]">
-                <Clock className="w-3 h-3 text-[#388bfd]" />
-                <span>~{estimatedApiCalls.toLocaleString()} calls</span>
+              <div className="flex items-center gap-1 text-[11px] text-[#607b62] bg-[#111810] px-2 py-0.5 rounded border border-[#263626]">
+                <Clock className="w-3 h-3 text-[#607b62]" />
+                <span>~{estimatedApiCalls} calls</span>
               </div>
 
               {isHighApiUsage && (
-                <div className="flex items-center gap-1 text-[11px] text-amber-400 bg-amber-950/60 border border-amber-600/50 px-2 py-0.5 rounded font-medium">
+                <div className="flex items-center gap-1 text-[11px] text-[#f59e0b] bg-[#111810] border border-[#f59e0b]/40 px-2 py-0.5 rounded">
                   <AlertTriangle className="w-3 h-3" />
-                  <span>Approaching 5,000/hr limit</span>
+                  <span>high call volume</span>
                 </div>
               )}
             </>
           ) : (
-            <div className="flex items-center gap-2 text-xs text-[#8b949e]">
-              <span className="w-2 h-2 rounded-full bg-[#30363d]" />
-              <span>0 commits queued · Click or drag on any heatmap cell to begin painting</span>
+            <div className="flex items-center gap-2 text-xs text-[#607b62]">
+              <span className="w-2 h-2 rounded-full bg-[#263626]" />
+              <span>0 commits queued. click or drag on heatmap to paint.</span>
             </div>
           )}
         </div>
 
-        {/* Right: Actions */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2">
           {totalCommits > 0 && (
             <>
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={() => setShowPreview(!showPreview)}
-                className="border-[#30363d] bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] text-xs h-8 px-2.5 gap-1.5"
+                className="text-xs text-[#607b62] hover:text-[#dbead9] px-2 py-1 rounded bg-[#111810] border border-[#263626] flex items-center gap-1 transition-all"
               >
-                <Calendar className="w-3 h-3" />
-                <span className="hidden sm:inline">{showPreview ? 'Hide Timeline' : 'Timeline Details'}</span>
+                <span>{showPreview ? 'hide list' : 'view list'}</span>
                 {showPreview ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </Button>
+              </button>
 
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={clearQueue}
-                className="border-[#30363d] bg-[#21262d] hover:bg-[#da3633]/20 hover:text-[#f85149] hover:border-[#da3633]/50 text-[#c9d1d9] text-xs h-8 px-2.5 gap-1.5"
+                className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded bg-[#111810] border border-[#263626] flex items-center gap-1 transition-all"
               >
                 <Trash2 className="w-3 h-3" />
-                <span>Clear</span>
-              </Button>
+                <span>clear</span>
+              </button>
             </>
           )}
 
@@ -98,28 +91,28 @@ export default function CommitQueue({ onExecute, disabled = false }: CommitQueue
             size="sm"
             onClick={onExecute}
             disabled={disabled || totalCommits === 0 || !selectedRepo}
-            className="bg-[#238636] hover:bg-[#2ea043] text-white text-xs h-8 px-4 font-semibold gap-1.5 shadow-md shadow-[#238636]/25 disabled:opacity-50"
+            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] font-bold text-xs h-8 px-4 rounded-lg gap-1.5 shadow-sm disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
           >
             <Play className="w-3 h-3 fill-current" />
-            <span>Execute Commits</span>
+            <span>execute commits</span>
           </Button>
         </div>
       </div>
 
       {/* Expandable Timeline List */}
       {showPreview && totalCommits > 0 && (
-        <div className="mt-3 p-3 rounded-xl border border-[#30363d] bg-[#161b22] animate-in fade-in">
-          <div className="text-xs font-semibold text-white mb-2 flex items-center justify-between">
-            <span>Commit Queue Timeline ({plan.length} dates)</span>
-            <span className="text-[#8b949e] font-mono text-[11px]">Sorted chronologically</span>
+        <div className="mt-2 p-3 rounded-xl border border-[#263626] bg-[#182319] animate-in fade-in">
+          <div className="text-xs text-[#607b62] mb-2 flex items-center justify-between">
+            <span>commit queue ({plan.length} dates)</span>
+            <span>chronological</span>
           </div>
-          <div className="max-h-48 overflow-y-auto rounded-lg border border-[#30363d] bg-[#0d1117] p-2 divide-y divide-[#30363d]/50">
+          <div className="max-h-44 overflow-y-auto rounded-lg border border-[#263626] bg-[#111810] p-2 divide-y divide-[#263626]/60">
             {plan.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between py-1 px-2 text-xs font-mono">
-                <span className="text-[#c9d1d9]">
-                  {item.date.toISOString().split('T')[0]} ({item.date.toLocaleDateString('en-US', { weekday: 'short' })})
+                <span className="text-[#607b62]">
+                  {item.date.toISOString().split('T')[0]} ({item.date.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()})
                 </span>
-                <span className="px-2 py-0.5 rounded bg-orange-950/70 border border-orange-500/40 text-orange-400 font-semibold text-[11px]">
+                <span className="px-2 py-0.5 rounded bg-[#182319] border border-[#263626] text-[#8cd48f] font-mono text-[11px]">
                   {item.count} commit{item.count > 1 ? 's' : ''}
                 </span>
               </div>
