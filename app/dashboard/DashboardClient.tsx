@@ -7,8 +7,8 @@ import {
   GitCommit, 
   LogOut, 
   Calendar, 
-  FolderGit2, 
-  Sparkles 
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -21,6 +21,8 @@ import {
 import ContributionGraph from '@/components/graph/ContributionGraph';
 import ToolPanel from '@/components/tools/ToolPanel';
 import CommitQueue from '@/components/execution/CommitQueue';
+import ExecutionModal from '@/components/execution/ExecutionModal';
+import RepoSelector from '@/components/execution/RepoSelector';
 import { useGraphStore } from '@/store/graph-store';
 import { GitHubUser, ContributionDay, RepoInfo } from '@/types';
 
@@ -42,9 +44,8 @@ export default function DashboardClient({
   const { year, setYear, setSelectedRepo } = useGraphStore();
   const [graphData, setGraphData] = useState<ContributionDay[][]>(initialGraph);
   const [isLoadingGraph, setIsLoadingGraph] = useState<boolean>(false);
-  const [activeRepoName, setActiveRepoName] = useState<string>(
-    initialRepos[0]?.name || ''
-  );
+  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState<boolean>(false);
+  const [successBanner, setSuccessBanner] = useState<string | null>(null);
 
   // Sync initial repo and year to store
   useEffect(() => {
@@ -61,15 +62,11 @@ export default function DashboardClient({
   // Available years: current year down to 6 years back
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
 
-  // Handle year switch
-  const handleYearChange = async (newYearStr: string | null) => {
-    if (!newYearStr) return;
-    const newYear = parseInt(newYearStr, 10);
-    setYear(newYear);
+  // Refetch contribution graph
+  const refetchGraph = async (targetYear: number) => {
     setIsLoadingGraph(true);
-
     try {
-      const res = await fetch(`/api/me?year=${newYear}`);
+      const res = await fetch(`/api/me?year=${targetYear}`);
       if (res.ok) {
         const data = await res.json();
         if (data.graph) {
@@ -77,24 +74,24 @@ export default function DashboardClient({
         }
       }
     } catch (err) {
-      console.error('Failed to fetch graph data for year', newYear, err);
+      console.error('Failed to refetch graph data:', err);
     } finally {
       setIsLoadingGraph(false);
     }
   };
 
-  // Handle repository selection
-  const handleRepoChange = (repoName: string | null) => {
-    if (!repoName) return;
-    setActiveRepoName(repoName);
-    const found = initialRepos.find((r) => r.name === repoName);
-    if (found) {
-      setSelectedRepo({
-        owner: user.login,
-        repo: found.name,
-        branch: found.defaultBranch || 'main',
-      });
-    }
+  // Handle year switch
+  const handleYearChange = async (newYearStr: string | null) => {
+    if (!newYearStr) return;
+    const newYear = parseInt(newYearStr, 10);
+    setYear(newYear);
+    await refetchGraph(newYear);
+  };
+
+  const handleExecutionSuccess = async () => {
+    setSuccessBanner('Commits successfully pushed to GitHub! Refreshing contribution data...');
+    await refetchGraph(year);
+    setTimeout(() => setSuccessBanner(null), 8000);
   };
 
   return (
@@ -152,26 +149,19 @@ export default function DashboardClient({
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full flex flex-col gap-6">
+        {/* Success Banner */}
+        {successBanner && (
+          <div className="p-3 rounded-xl bg-[#0e4429]/60 border border-[#238636] text-[#3fb950] text-xs flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{successBanner}</span>
+          </div>
+        )}
+
         {/* Controls Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-[#30363d] bg-[#161b22]">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Target Repo Picker */}
-            <div className="flex items-center gap-2">
-              <FolderGit2 className="w-4 h-4 text-[#8b949e]" />
-              <span className="text-xs font-medium text-[#8b949e]">Target Repo:</span>
-              <Select value={activeRepoName} onValueChange={handleRepoChange}>
-                <SelectTrigger className="w-[220px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white">
-                  <SelectValue placeholder="Select repository" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#161b22] border-[#30363d] text-white text-xs">
-                  {initialRepos.map((repo) => (
-                    <SelectItem key={repo.name} value={repo.name}>
-                      {repo.name} {repo.private ? '(private)' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="flex flex-wrap items-center gap-6">
+            {/* Target Repo Picker with Create Option */}
+            <RepoSelector userLogin={user.login} initialRepos={initialRepos} />
 
             {/* Year Picker */}
             <div className="flex items-center gap-2">
@@ -193,7 +183,7 @@ export default function DashboardClient({
           </div>
 
           <div className="text-xs text-[#8b949e] flex items-center gap-2">
-            <span>Commit Author Email:</span>
+            <span>Commit Author:</span>
             <span className="text-white font-mono bg-[#0d1117] px-2 py-0.5 rounded border border-[#30363d]">
               {email || user.email || `${user.login}@users.noreply.github.com`}
             </span>
@@ -221,7 +211,16 @@ export default function DashboardClient({
         </section>
 
         {/* Commit Queue Panel */}
-        <CommitQueue onExecute={() => {}} />
+        <CommitQueue onExecute={() => setIsExecutionModalOpen(true)} />
+
+        {/* Execution Modal */}
+        <ExecutionModal
+          isOpen={isExecutionModalOpen}
+          onClose={() => setIsExecutionModalOpen(false)}
+          userName={user.name || user.login}
+          userEmail={email || user.email || `${user.login}@users.noreply.github.com`}
+          onSuccess={handleExecutionSuccess}
+        />
       </main>
     </div>
   );
