@@ -7,8 +7,8 @@ import {
   GitCommit, 
   LogOut, 
   Calendar, 
-  Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Mail
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -94,81 +94,36 @@ export default function DashboardClient({
     setTimeout(() => setSuccessBanner(null), 8000);
   };
 
+  const authorEmail = email || user.email || `${user.login}@users.noreply.github.com`;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0d1117] text-[#c9d1d9]">
-      {/* Top Header */}
-      <header className="border-b border-[#30363d] bg-[#161b22] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5">
+      {/* Sticky Top Header */}
+      <header className="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          {/* Logo & Main Context Controls */}
+          <div className="flex items-center gap-5">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0">
               <div className="w-8 h-8 rounded-lg bg-[#238636] flex items-center justify-center text-white shadow-md shadow-[#238636]/20">
                 <GitCommit className="w-5 h-5" />
               </div>
-              <span className="font-semibold text-lg tracking-tight text-white flex items-center gap-1.5">
-                commit-bot<span className="text-[#39d353] font-mono text-sm">.web</span>
+              <span className="font-semibold text-lg tracking-tight text-white hidden sm:inline-flex items-center gap-1">
+                commit-bot<span className="text-[#39d353] font-mono text-xs">.web</span>
               </span>
             </Link>
-          </div>
 
-          {/* User Profile & Logout */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-[#0d1117] border border-[#30363d] rounded-full py-1 px-3">
-              {user.avatarUrl && (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.login}
-                  width={24}
-                  height={24}
-                  className="rounded-full ring-1 ring-[#30363d]"
-                />
-              )}
-              <div className="flex flex-col text-left">
-                <span className="text-xs font-semibold text-white leading-tight">
-                  {user.name || user.login}
-                </span>
-                <span className="text-[10px] text-[#8b949e] font-mono leading-tight">
-                  @{user.login}
-                </span>
-              </div>
+            <div className="h-5 w-px bg-[#30363d] hidden sm:block" />
+
+            {/* Target Repo Picker */}
+            <div className="hidden md:flex items-center">
+              <RepoSelector userLogin={user.login} initialRepos={initialRepos} />
             </div>
 
-            <Link
-              href="/api/auth/logout"
-              className={buttonVariants({
-                variant: 'outline',
-                size: 'sm',
-                className: 'border-[#30363d] bg-[#21262d] hover:bg-[#da3633]/20 hover:text-[#f85149] hover:border-[#da3633]/50 text-[#c9d1d9] gap-1.5',
-              })}
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full flex flex-col gap-6">
-        {/* Success Banner */}
-        {successBanner && (
-          <div className="p-3 rounded-xl bg-[#0e4429]/60 border border-[#238636] text-[#3fb950] text-xs flex items-center gap-2 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{successBanner}</span>
-          </div>
-        )}
-
-        {/* Controls Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-[#30363d] bg-[#161b22]">
-          <div className="flex flex-wrap items-center gap-6">
-            {/* Target Repo Picker with Create Option */}
-            <RepoSelector userLogin={user.login} initialRepos={initialRepos} />
-
-            {/* Year Picker */}
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#8b949e]" />
-              <span className="text-xs font-medium text-[#8b949e]">Year:</span>
+            {/* Year Selector */}
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#8b949e]" />
               <Select value={year.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-[110px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white font-mono">
+                <SelectTrigger className="w-[100px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white font-mono">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#161b22] border-[#30363d] text-white text-xs font-mono">
@@ -182,43 +137,89 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="text-xs text-[#8b949e] flex items-center gap-2">
-            <span>Commit Author:</span>
-            <span className="text-white font-mono bg-[#0d1117] px-2 py-0.5 rounded border border-[#30363d]">
-              {email || user.email || `${user.login}@users.noreply.github.com`}
-            </span>
+          {/* User Profile & Actions */}
+          <div className="flex items-center gap-3">
+            {/* Author Email Pill */}
+            <div className="hidden lg:flex items-center gap-1.5 text-xs text-[#8b949e] font-mono bg-[#0d1117] px-2.5 py-1 rounded-full border border-[#30363d]">
+              <Mail className="w-3 h-3 text-[#39d353]" />
+              <span className="text-white truncate max-w-[170px]" title={authorEmail}>
+                {authorEmail}
+              </span>
+            </div>
+
+            {/* User Badge */}
+            <div className="flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-full py-1 px-2.5">
+              {user.avatarUrl && (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.login}
+                  width={22}
+                  height={22}
+                  className="rounded-full ring-1 ring-[#30363d]"
+                />
+              )}
+              <span className="text-xs font-semibold text-white">
+                @{user.login}
+              </span>
+            </div>
+
+            {/* Logout */}
+            <Link
+              href="/api/auth/logout"
+              className={buttonVariants({
+                variant: 'outline',
+                size: 'sm',
+                className: 'border-[#30363d] bg-[#21262d] hover:bg-[#da3633]/20 hover:text-[#f85149] hover:border-[#da3633]/50 text-[#c9d1d9] text-xs h-8 px-2.5 gap-1',
+              })}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
+            </Link>
           </div>
         </div>
+      </header>
 
-        {/* Tool Selector Panel */}
-        <ToolPanel />
+      {/* Main Workspace */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-6 w-full flex flex-col gap-5">
+        {/* Mobile Repo Selector fallback */}
+        <div className="flex md:hidden items-center justify-between p-3 rounded-lg border border-[#30363d] bg-[#161b22]">
+          <RepoSelector userLogin={user.login} initialRepos={initialRepos} />
+        </div>
 
-        {/* Contribution Graph Section */}
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#39d353]" />
-              <span>Contribution Heatmap</span>
-              {isLoadingGraph && (
-                <span className="text-xs text-[#8b949e] font-normal animate-pulse">
-                  (Loading data...)
-                </span>
-              )}
-            </h2>
+        {/* Execution Success Notification */}
+        {successBanner && (
+          <div className="p-3 rounded-xl bg-[#0e4429]/60 border border-[#238636] text-[#3fb950] text-xs flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{successBanner}</span>
           </div>
+        )}
 
+        {/* The Hero: GitHub Contribution Heatmap */}
+        <section className="w-full flex flex-col items-center">
+          {isLoadingGraph && (
+            <div className="text-xs text-[#8b949e] font-mono animate-pulse mb-1">
+              Synchronizing contribution data with GitHub GraphQL...
+            </div>
+          )}
           <ContributionGraph realData={graphData} year={year} />
         </section>
 
-        {/* Commit Queue Panel */}
-        <CommitQueue onExecute={() => setIsExecutionModalOpen(true)} />
+        {/* Tool Strip Toolbar */}
+        <section className="w-full">
+          <ToolPanel />
+        </section>
 
-        {/* Execution Modal */}
+        {/* Commit Queue Action Bar */}
+        <section className="w-full mt-auto">
+          <CommitQueue onExecute={() => setIsExecutionModalOpen(true)} />
+        </section>
+
+        {/* Execution Streaming Modal */}
         <ExecutionModal
           isOpen={isExecutionModalOpen}
           onClose={() => setIsExecutionModalOpen(false)}
           userName={user.name || user.login}
-          userEmail={email || user.email || `${user.login}@users.noreply.github.com`}
+          userEmail={authorEmail}
           onSuccess={handleExecutionSuccess}
         />
       </main>
