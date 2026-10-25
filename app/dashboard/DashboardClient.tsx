@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -10,7 +10,7 @@ import {
   FolderGit2, 
   Sparkles 
 } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -19,6 +19,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import ContributionGraph from '@/components/graph/ContributionGraph';
+import ToolPanel from '@/components/tools/ToolPanel';
+import CommitQueue from '@/components/execution/CommitQueue';
+import { useGraphStore } from '@/store/graph-store';
 import { GitHubUser, ContributionDay, RepoInfo } from '@/types';
 
 interface DashboardClientProps {
@@ -36,12 +39,24 @@ export default function DashboardClient({
   initialRepos,
   currentYear,
 }: DashboardClientProps) {
-  const [year, setYear] = useState<number>(currentYear);
+  const { year, setYear, setSelectedRepo } = useGraphStore();
   const [graphData, setGraphData] = useState<ContributionDay[][]>(initialGraph);
   const [isLoadingGraph, setIsLoadingGraph] = useState<boolean>(false);
-  const [selectedRepo, setSelectedRepo] = useState<string>(
+  const [activeRepoName, setActiveRepoName] = useState<string>(
     initialRepos[0]?.name || ''
   );
+
+  // Sync initial repo and year to store
+  useEffect(() => {
+    setYear(currentYear);
+    if (initialRepos[0]) {
+      setSelectedRepo({
+        owner: user.login,
+        repo: initialRepos[0].name,
+        branch: initialRepos[0].defaultBranch || 'main',
+      });
+    }
+  }, [currentYear, initialRepos, user.login, setYear, setSelectedRepo]);
 
   // Available years: current year down to 6 years back
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
@@ -65,6 +80,20 @@ export default function DashboardClient({
       console.error('Failed to fetch graph data for year', newYear, err);
     } finally {
       setIsLoadingGraph(false);
+    }
+  };
+
+  // Handle repository selection
+  const handleRepoChange = (repoName: string | null) => {
+    if (!repoName) return;
+    setActiveRepoName(repoName);
+    const found = initialRepos.find((r) => r.name === repoName);
+    if (found) {
+      setSelectedRepo({
+        owner: user.login,
+        repo: found.name,
+        branch: found.defaultBranch || 'main',
+      });
     }
   };
 
@@ -122,16 +151,16 @@ export default function DashboardClient({
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full flex flex-col gap-6">
         {/* Controls Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 p-4 rounded-xl border border-[#30363d] bg-[#161b22]">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-[#30363d] bg-[#161b22]">
           <div className="flex flex-wrap items-center gap-4">
             {/* Target Repo Picker */}
             <div className="flex items-center gap-2">
               <FolderGit2 className="w-4 h-4 text-[#8b949e]" />
               <span className="text-xs font-medium text-[#8b949e]">Target Repo:</span>
-              <Select value={selectedRepo} onValueChange={(val) => val && setSelectedRepo(val)}>
-                <SelectTrigger className="w-[200px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white">
+              <Select value={activeRepoName} onValueChange={handleRepoChange}>
+                <SelectTrigger className="w-[220px] h-8 text-xs bg-[#0d1117] border-[#30363d] text-white">
                   <SelectValue placeholder="Select repository" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#161b22] border-[#30363d] text-white text-xs">
@@ -164,16 +193,19 @@ export default function DashboardClient({
           </div>
 
           <div className="text-xs text-[#8b949e] flex items-center gap-2">
-            <span>Commit Email:</span>
+            <span>Commit Author Email:</span>
             <span className="text-white font-mono bg-[#0d1117] px-2 py-0.5 rounded border border-[#30363d]">
               {email || user.email || `${user.login}@users.noreply.github.com`}
             </span>
           </div>
         </div>
 
+        {/* Tool Selector Panel */}
+        <ToolPanel />
+
         {/* Contribution Graph Section */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-3">
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#39d353]" />
               <span>Contribution Heatmap</span>
@@ -187,6 +219,9 @@ export default function DashboardClient({
 
           <ContributionGraph realData={graphData} year={year} />
         </section>
+
+        {/* Commit Queue Panel */}
+        <CommitQueue onExecute={() => {}} />
       </main>
     </div>
   );
