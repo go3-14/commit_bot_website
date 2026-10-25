@@ -16,7 +16,6 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
   let lastMonth = -1;
 
   for (let week = 0; week < 53; week++) {
-    // Check Wednesday (day 3) or Sunday (day 0) to avoid edge jitter
     const date = yearGridToDate(week, 3, year);
     if (date.getFullYear() === year) {
       const month = date.getMonth();
@@ -28,10 +27,10 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
   }
 
   return (
-    <div className="flex text-[11px] text-[#8b949e] font-mono h-4 relative select-none pl-8 mb-1">
+    <div className="flex text-[11px] text-[#8b949e] font-mono h-5 relative select-none pl-8 mb-1.5">
       {monthLabels.map((item, idx) => {
-        // Calculate horizontal position (each column is 12px + 3px gap = 15px)
-        const left = item.weekIndex * 15;
+        // Each column is 13px cell + 3px gap = 16px
+        const left = item.weekIndex * 16;
         return (
           <span
             key={idx}
