@@ -110,3 +110,40 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #2a352a;
 }
+
+/* Contribution heatmap */
+.heat-grid {
+  touch-action: none;
+}
+
+.heat-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  transition: transform 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+}
+
+.heat-cell:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.heat-cell-queued {
+  box-shadow: inset 0 0 0 1.5px var(--color-fg);
+}
+
+.heat-cell:not(:disabled):hover,
+.heat-cell:not(:disabled):focus-visible {
+  transform: scale(1.35);
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--color-line-strong), 0 4px 10px rgba(0, 0, 0, 0.7);
+}
+
+.heat-grid:has(.heat-cell:not(:disabled):hover) .heat-cell:not(:hover):not(:disabled) {
+  opacity: 0.55;
+}

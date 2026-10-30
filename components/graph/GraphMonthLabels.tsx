@@ -5,42 +5,30 @@ interface GraphMonthLabelsProps {
   year: number;
 }
 
-const MONTH_NAMES = [
-  'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-  'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
-];
+const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
 export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
-  // Determine which week each month starts on
-  const monthLabels: { weekIndex: number; name: string }[] = [];
+  // First column whose Thursday falls in each month
+  const labels: { week: number; name: string }[] = [];
   let lastMonth = -1;
 
   for (let week = 0; week < 53; week++) {
-    const date = yearGridToDate(week, 3, year);
-    if (date.getUTCFullYear() === year) {
-      const month = date.getUTCMonth();
-      if (month !== lastMonth) {
-        monthLabels.push({ weekIndex: week, name: MONTH_NAMES[month] });
-        lastMonth = month;
-      }
+    const date = yearGridToDate(week, 4, year);
+    if (date.getUTCFullYear() !== year) continue;
+    const month = date.getUTCMonth();
+    if (month !== lastMonth) {
+      labels.push({ week, name: MONTH_NAMES[month] });
+      lastMonth = month;
     }
   }
 
   return (
-    <div className="flex text-[11px] text-dim font-mono h-5 relative select-none pl-14 mt-2">
-      {monthLabels.map((item, idx) => {
-        // Each column is 13px cell + 3px gap = 16px
-        const left = item.weekIndex * 16;
-        return (
-          <span
-            key={idx}
-            className="absolute"
-            style={{ left: `${left + 56}px` }}
-          >
-            {item.name}
-          </span>
-        );
-      })}
+    <div className="relative h-5 mt-2 ml-9 text-[11px] text-dim select-none">
+      {labels.map((item) => (
+        <span key={item.name} className="absolute" style={{ left: `${item.week * 16}px` }}>
+          {item.name}
+        </span>
+      ))}
     </div>
   );
 }
