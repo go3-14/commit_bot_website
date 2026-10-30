@@ -65,16 +65,16 @@ export default function PatternTool() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
-      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-canvas border border-line font-mono">
+      <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setMode('text')}
             className={`text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               mode === 'text'
-                ? 'bg-[#99d19c] text-[#111810] font-bold'
-                : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
+                ? 'bg-mint-strong text-canvas font-bold'
+                : 'bg-panel border border-line text-dim hover:text-fg'
             }`}
           >
             <Type className="w-3.5 h-3.5" />
@@ -86,8 +86,8 @@ export default function PatternTool() {
             onClick={() => setMode('shape')}
             className={`text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               mode === 'shape'
-                ? 'bg-[#99d19c] text-[#111810] font-bold'
-                : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
+                ? 'bg-mint-strong text-canvas font-bold'
+                : 'bg-panel border border-line text-dim hover:text-fg'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -96,7 +96,7 @@ export default function PatternTool() {
         </div>
 
         {feedback && (
-          <span className="text-xs text-[#8cd48f] font-mono animate-pulse">
+          <span className="text-xs text-mint font-mono animate-pulse">
             ✓ {feedback}
           </span>
         )}
@@ -105,7 +105,7 @@ export default function PatternTool() {
       {mode === 'text' ? (
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1 min-w-[180px]">
-            <label className="text-[11px] text-[#607b62] block mb-1">
+            <label className="text-[11px] text-dim block mb-1">
               text to draw (a-z, 0-9, ! ? - . +)
             </label>
             <Input
@@ -113,13 +113,13 @@ export default function PatternTool() {
               value={text}
               onChange={(e) => setText(e.target.value.toUpperCase())}
               placeholder="e.g. HELLO"
-              className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono tracking-wider focus:border-[#374d37]"
+              className="h-8 text-xs bg-panel border-line text-fg font-mono tracking-wider focus:border-line-strong"
               maxLength={15}
             />
           </div>
 
           <div className="w-[100px]">
-            <label className="text-[11px] text-[#607b62] block mb-1">
+            <label className="text-[11px] text-dim block mb-1">
               start week (0-52)
             </label>
             <Input
@@ -128,22 +128,22 @@ export default function PatternTool() {
               max={50}
               value={startWeek}
               onChange={(e) => setStartWeek(Math.max(0, parseInt(e.target.value || '0', 10)))}
-              className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+              className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
             />
           </div>
 
           <div className="w-[130px]">
-            <label className="text-[11px] text-[#607b62] block mb-1">
+            <label className="text-[11px] text-dim block mb-1">
               commits / cell
             </label>
             <Select
               value={patternIntensity.toString()}
               onValueChange={(val) => val && setPatternIntensity(parseInt(val, 10))}
             >
-              <SelectTrigger className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono">
+              <SelectTrigger className="h-8 text-xs bg-panel border-line text-fg font-mono">
                 <SelectValue placeholder="intensity" />
               </SelectTrigger>
-              <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
+              <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
                 <SelectItem value="1">1 (low)</SelectItem>
                 <SelectItem value="3">3 (medium)</SelectItem>
                 <SelectItem value="5">5 (high)</SelectItem>
@@ -158,7 +158,7 @@ export default function PatternTool() {
               size="sm"
               onClick={handleApply}
               disabled={!text.trim() || !fits}
-              className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
+              className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-4 font-bold disabled:opacity-30 disabled:bg-line disabled:text-dim"
             >
               apply text
             </Button>
@@ -166,7 +166,7 @@ export default function PatternTool() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <label className="text-[11px] text-[#607b62]">
+          <label className="text-[11px] text-dim">
             choose a shape
           </label>
           <div className="flex flex-wrap items-center gap-2">
@@ -179,8 +179,8 @@ export default function PatternTool() {
                   onClick={() => setSelectedShape(shape.id)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
                     isSelected
-                      ? 'border-[#8cd48f] bg-[#182319] text-[#8cd48f] ring-1 ring-[#8cd48f]'
-                      : 'border-[#263626] bg-[#182319] text-[#607b62] hover:text-[#dbead9]'
+                      ? 'border-mint bg-panel text-mint ring-1 ring-mint'
+                      : 'border-line bg-panel text-dim hover:text-fg'
                   }`}
                 >
                   {shape.icon}
@@ -192,7 +192,7 @@ export default function PatternTool() {
 
           <div className="flex flex-wrap items-center gap-4 mt-2">
             <div className="w-[100px]">
-              <label className="text-[11px] text-[#607b62] block mb-1">
+              <label className="text-[11px] text-dim block mb-1">
                 start week
               </label>
               <Input
@@ -201,22 +201,22 @@ export default function PatternTool() {
                 max={50}
                 value={startWeek}
                 onChange={(e) => setStartWeek(Math.max(0, parseInt(e.target.value || '0', 10)))}
-                className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+                className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
               />
             </div>
 
             <div className="w-[130px]">
-              <label className="text-[11px] text-[#607b62] block mb-1">
+              <label className="text-[11px] text-dim block mb-1">
                 commits / cell
               </label>
               <Select
                 value={patternIntensity.toString()}
                 onValueChange={(val) => val && setPatternIntensity(parseInt(val, 10))}
               >
-                <SelectTrigger className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono">
+                <SelectTrigger className="h-8 text-xs bg-panel border-line text-fg font-mono">
                   <SelectValue placeholder="intensity" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
+                <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
                   <SelectItem value="1">1 (low)</SelectItem>
                   <SelectItem value="3">3 (medium)</SelectItem>
                   <SelectItem value="5">5 (high)</SelectItem>
@@ -230,7 +230,7 @@ export default function PatternTool() {
                 type="button"
                 size="sm"
                 onClick={handleApply}
-                className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold"
+                className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-4 font-bold"
               >
                 apply shape
               </Button>

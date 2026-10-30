@@ -50,15 +50,15 @@ export default function FillTool() {
   const estimatedMax = estimatedDays * maxCommits;
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
-      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
-        <span className="text-xs text-[#dbead9] flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#8cd48f]" />
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-canvas border border-line font-mono">
+      <div className="flex items-center justify-between border-b border-line pb-3">
+        <span className="text-xs text-fg flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-mint" />
           <span>fill year generator</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-[#8cd48f] flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1 animate-pulse">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
@@ -67,7 +67,7 @@ export default function FillTool() {
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="w-[120px]">
-          <label className="text-[11px] text-[#607b62] block mb-1">
+          <label className="text-[11px] text-dim block mb-1">
             min commits / day
           </label>
           <Input
@@ -76,12 +76,12 @@ export default function FillTool() {
             max={10}
             value={minCommits}
             onChange={(e) => setMinCommits(Math.max(1, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+            className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
           />
         </div>
 
         <div className="w-[120px]">
-          <label className="text-[11px] text-[#607b62] block mb-1">
+          <label className="text-[11px] text-dim block mb-1">
             max commits / day
           </label>
           <Input
@@ -90,12 +90,12 @@ export default function FillTool() {
             max={15}
             value={maxCommits}
             onChange={(e) => setMaxCommits(Math.max(minCommits, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+            className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
           />
         </div>
 
         <div className="flex items-center gap-3 pt-4">
-          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-[#607b62]">
+          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-dim">
             <Checkbox
               checked={weekdaysOnly || skipWeekends}
               onCheckedChange={(checked) => {
@@ -112,18 +112,18 @@ export default function FillTool() {
             type="button"
             size="sm"
             onClick={handleFill}
-            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold"
+            className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-4 font-bold"
           >
             fill {year}
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-[11px] text-[#607b62]">
-        <AlertCircle className="w-3.5 h-3.5 text-[#607b62]" />
+      <div className="flex items-center gap-2 text-[11px] text-dim">
+        <AlertCircle className="w-3.5 h-3.5 text-dim" />
         <span>
-          queues ~<strong className="text-[#8cd48f]">{estimatedMin}</strong> to{' '}
-          <strong className="text-[#8cd48f]">{estimatedMax}</strong> commits across ~{estimatedDays} dates.
+          queues ~<strong className="text-mint">{estimatedMin}</strong> to{' '}
+          <strong className="text-mint">{estimatedMax}</strong> commits across ~{estimatedDays} dates.
         </span>
       </div>
     </div>

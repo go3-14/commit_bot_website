@@ -34,19 +34,19 @@ export default function ToolPanel() {
 
   return (
     <div className="w-full flex flex-col gap-2 font-mono select-none">
-      <div className="flex items-center gap-1.5 text-xs text-[#607b62] px-1">
+      <div className="flex items-center gap-1.5 text-xs text-dim px-1">
         <span>▼ tools</span>
       </div>
 
       {/* Segmented Filter Pills matching Monkeytype */}
-      <div className="w-full flex flex-wrap items-center gap-1.5 bg-[#182319] border border-[#263626] p-2 rounded-xl">
+      <div className="w-full flex flex-wrap items-center gap-1.5 bg-panel border border-line p-2 rounded-xl">
         <button
           type="button"
           onClick={() => selectPaint(1)}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             isPaintActive(1)
-              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           paint (1)
@@ -57,8 +57,8 @@ export default function ToolPanel() {
           onClick={() => selectPaint(3)}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             isPaintActive(3)
-              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           paint (3)
@@ -69,8 +69,8 @@ export default function ToolPanel() {
           onClick={() => selectPaint(5)}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             isPaintActive(5)
-              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           paint (5)
@@ -81,8 +81,8 @@ export default function ToolPanel() {
           onClick={() => selectPaint(10)}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             isPaintActive(10)
-              ? 'bg-[#99d19c] text-[#111810] font-bold shadow-sm'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           paint (10)
@@ -93,22 +93,22 @@ export default function ToolPanel() {
           onClick={selectErase}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             isEraseActive
-              ? 'bg-[#da3633] text-white font-bold shadow-sm'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-danger text-white font-bold shadow-sm'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           erase
         </button>
 
-        <div className="h-4 w-px bg-[#263626] mx-1 hidden sm:block" />
+        <div className="h-4 w-px bg-line mx-1 hidden sm:block" />
 
         <button
           type="button"
           onClick={() => setActiveSheet('pattern')}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             activeSheet === 'pattern'
-              ? 'bg-[#99d19c] text-[#111810] font-bold'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           text & shapes
@@ -119,8 +119,8 @@ export default function ToolPanel() {
           onClick={() => setActiveSheet('image')}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             activeSheet === 'image'
-              ? 'bg-[#99d19c] text-[#111810] font-bold'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           image
@@ -131,8 +131,8 @@ export default function ToolPanel() {
           onClick={() => setActiveSheet('fill')}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             activeSheet === 'fill'
-              ? 'bg-[#99d19c] text-[#111810] font-bold'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           fill year
@@ -143,8 +143,8 @@ export default function ToolPanel() {
           onClick={() => setActiveSheet('random')}
           className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
             activeSheet === 'random'
-              ? 'bg-[#99d19c] text-[#111810] font-bold'
-              : 'bg-[#111810] text-[#607b62] border border-[#263626] hover:text-[#dbead9] hover:border-[#374d37]'
+              ? 'bg-mint-strong text-canvas font-bold'
+              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
           }`}
         >
           random
@@ -155,15 +155,15 @@ export default function ToolPanel() {
       <Sheet open={activeSheet !== null} onOpenChange={(open) => !open && setActiveSheet(null)}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-md bg-[#182319] border-l border-[#263626] text-[#dbead9] p-6 shadow-2xl overflow-y-auto font-mono"
+          className="w-full sm:max-w-md bg-panel border-l border-line text-fg p-6 shadow-2xl overflow-y-auto font-mono"
         >
           {activeSheet === 'pattern' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                <SheetTitle className="text-mint text-sm font-mono">
                   text & shapes
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                <SheetDescription className="text-xs text-dim font-mono">
                   convert text with 5x7 font or stamps to commits
                 </SheetDescription>
               </SheetHeader>
@@ -174,10 +174,10 @@ export default function ToolPanel() {
           {activeSheet === 'image' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                <SheetTitle className="text-mint text-sm font-mono">
                   image converter
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                <SheetDescription className="text-xs text-dim font-mono">
                   convert pixel data to 7 row commit grid
                 </SheetDescription>
               </SheetHeader>
@@ -188,10 +188,10 @@ export default function ToolPanel() {
           {activeSheet === 'fill' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                <SheetTitle className="text-mint text-sm font-mono">
                   fill year
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                <SheetDescription className="text-xs text-dim font-mono">
                   fill full year with randomized daily activity
                 </SheetDescription>
               </SheetHeader>
@@ -202,10 +202,10 @@ export default function ToolPanel() {
           {activeSheet === 'random' && (
             <>
               <SheetHeader className="mb-4">
-                <SheetTitle className="text-[#8cd48f] text-sm font-mono">
+                <SheetTitle className="text-mint text-sm font-mono">
                   random scatter
                 </SheetTitle>
-                <SheetDescription className="text-xs text-[#607b62] font-mono">
+                <SheetDescription className="text-xs text-dim font-mono">
                   scatter commits randomly across dates
                 </SheetDescription>
               </SheetHeader>

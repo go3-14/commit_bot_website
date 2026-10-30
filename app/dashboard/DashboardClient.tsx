@@ -135,20 +135,20 @@ export default function DashboardClient({
   const authorEmail = email || user?.email || (user ? `${user.login}@users.noreply.github.com` : '');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#111810] text-[#dbead9] font-mono select-none">
+    <div className="min-h-screen flex flex-col bg-canvas text-fg font-mono select-none">
       {/* Minimalist Monkeytype Top Navigation Bar */}
-      <header className="border-b border-[#263626] bg-[#111810]/95 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-line bg-canvas/95 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo & Main Context Controls */}
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 shrink-0 text-[#8cd48f] hover:text-[#99d19c] transition-colors">
+            <Link href="/" className="flex items-center gap-2 shrink-0 text-mint hover:text-mint-strong transition-colors">
               <GitCommit className="w-5 h-5" />
               <span className="font-bold text-sm tracking-tight">
-                commit-bot<span className="text-[#607b62] text-xs">.web</span>
+                commit-bot<span className="text-dim text-xs">.web</span>
               </span>
             </Link>
 
-            <div className="h-4 w-px bg-[#263626] hidden sm:block" />
+            <div className="h-4 w-px bg-line hidden sm:block" />
 
             {/* Target Repo Picker */}
             <div className="hidden md:flex items-center">
@@ -157,12 +157,12 @@ export default function DashboardClient({
 
             {/* Year Selector */}
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[#607b62]">year:</span>
+              <span className="text-dim">year:</span>
               <Select value={year.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-[85px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]">
+                <SelectTrigger className="w-[85px] h-8 text-xs bg-canvas border-line text-fg font-mono focus:border-line-strong">
                   <SelectValue placeholder="year" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
+                <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
                   {years.map((y) => (
                     <SelectItem key={y} value={y.toString()} className="font-mono">
                       {y}
@@ -177,19 +177,19 @@ export default function DashboardClient({
           <div className="flex items-center gap-2.5">
             {user ? (
               <>
-                <div className="flex items-center gap-2 bg-[#182319] border border-[#263626] rounded-lg py-1 px-2.5">
+                <div className="flex items-center gap-2 bg-panel border border-line rounded-lg py-1 px-2.5">
                   {user.avatarUrl ? (
                     <Image
                       src={user.avatarUrl}
                       alt={user.login}
                       width={18}
                       height={18}
-                      className="rounded-full ring-1 ring-[#263626]"
+                      className="rounded-full ring-1 ring-line"
                     />
                   ) : (
-                    <UserIcon className="w-3.5 h-3.5 text-[#607b62]" />
+                    <UserIcon className="w-3.5 h-3.5 text-dim" />
                   )}
-                  <span className="text-xs text-[#dbead9]">
+                  <span className="text-xs text-fg">
                     @{user.login}
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export default function DashboardClient({
                 <form method="post" action="/api/auth/logout">
                   <button
                     type="submit"
-                    className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded-md bg-[#182319] border border-[#263626] flex items-center gap-1 transition-all"
+                    className="text-xs text-dim hover:text-red-400 px-2.5 py-1 rounded-md bg-panel border border-line flex items-center gap-1 transition-all"
                     title="Logout"
                   >
                     <LogOut className="w-3 h-3" />
@@ -208,7 +208,7 @@ export default function DashboardClient({
             ) : (
               <Link
                 href="/api/auth/github"
-                className="text-xs font-bold text-[#111810] bg-[#99d19c] hover:bg-[#8cd48f] px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
+                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
                 <span>connect github</span>
@@ -221,26 +221,26 @@ export default function DashboardClient({
       {/* Main Workspace */}
       <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-5">
         {/* Mobile Repo Selector */}
-        <div className="flex md:hidden items-center justify-between p-3 rounded-xl border border-[#263626] bg-[#182319]">
+        <div className="flex md:hidden items-center justify-between p-3 rounded-xl border border-line bg-panel">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
 
         {authError && (
-          <div role="alert" className="p-3 rounded-xl bg-[#182319] border border-red-500/40 text-red-400 text-xs">
+          <div role="alert" className="p-3 rounded-xl bg-panel border border-red-500/40 text-red-400 text-xs">
             {authError}
           </div>
         )}
 
         {/* Execution Success Notification */}
         {successBanner && (
-          <div className="p-3 rounded-xl bg-[#182319] border border-[#8cd48f]/50 text-[#8cd48f] text-xs flex items-center gap-2 animate-in fade-in">
+          <div className="p-3 rounded-xl bg-panel border border-mint/50 text-mint text-xs flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successBanner}</span>
           </div>
         )}
 
         {/* Monkeytype User Profile & Stats Header Card */}
-        <section className="w-full bg-[#182319] border border-[#263626] rounded-xl p-5 flex flex-wrap items-center justify-between gap-6">
+        <section className="w-full bg-panel border border-line rounded-xl p-5 flex flex-wrap items-center justify-between gap-6">
           {/* Left: User Identity */}
           <div className="flex items-center gap-3.5">
             {user?.avatarUrl ? (
@@ -249,18 +249,18 @@ export default function DashboardClient({
                 alt={user.login}
                 width={44}
                 height={44}
-                className="rounded-full ring-2 ring-[#263626]"
+                className="rounded-full ring-2 ring-line"
               />
             ) : (
-              <div className="w-11 h-11 rounded-full bg-[#111810] border border-[#263626] flex items-center justify-center text-[#607b62]">
+              <div className="w-11 h-11 rounded-full bg-canvas border border-line flex items-center justify-center text-dim">
                 <UserIcon className="w-5 h-5" />
               </div>
             )}
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-[#dbead9]">
+              <span className="text-sm font-bold text-fg">
                 {user ? `@${user.login}` : 'guest session'}
               </span>
-              <span className="text-xs text-[#607b62]">
+              <span className="text-xs text-dim">
                 {user ? (authorEmail || 'github authenticated') : 'interactive canvas (login to execute)'}
               </span>
             </div>
@@ -269,16 +269,16 @@ export default function DashboardClient({
           {/* Right: Monkeytype Stat Columns */}
           <div className="flex items-center gap-8 sm:gap-12">
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">queued commits</span>
-              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{totalCommits}</span>
+              <span className="text-[11px] text-dim lowercase tracking-wide">queued commits</span>
+              <span className="text-2xl sm:text-3xl font-bold text-mint">{totalCommits}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">active dates</span>
-              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{totalDates}</span>
+              <span className="text-[11px] text-dim lowercase tracking-wide">active dates</span>
+              <span className="text-2xl sm:text-3xl font-bold text-mint">{totalDates}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#607b62] lowercase tracking-wide">api calls</span>
-              <span className="text-2xl sm:text-3xl font-bold text-[#8cd48f]">{estimatedApiCalls}</span>
+              <span className="text-[11px] text-dim lowercase tracking-wide">api calls</span>
+              <span className="text-2xl sm:text-3xl font-bold text-mint">{estimatedApiCalls}</span>
             </div>
           </div>
         </section>
@@ -286,7 +286,7 @@ export default function DashboardClient({
         {/* The Hero: GitHub Contribution Heatmap */}
         <section className="w-full flex flex-col items-center">
           {isLoadingGraph && (
-            <div className="text-xs text-[#607b62] animate-pulse mb-1">
+            <div className="text-xs text-dim animate-pulse mb-1">
               synchronizing contribution data...
             </div>
           )}
@@ -316,29 +316,29 @@ export default function DashboardClient({
 
         {/* Auth prompt modal if unauthenticated user clicks Execute */}
         <Dialog open={isAuthPromptOpen} onOpenChange={setIsAuthPromptOpen}>
-          <DialogContent className="bg-[#182319] border-[#263626] text-[#dbead9] sm:max-w-md shadow-2xl font-mono">
+          <DialogContent className="bg-panel border-line text-fg sm:max-w-md shadow-2xl font-mono">
             <DialogHeader>
-              <DialogTitle className="text-[#dbead9] text-base flex items-center gap-2">
-                <GithubIcon className="w-4 h-4 text-[#8cd48f]" />
+              <DialogTitle className="text-fg text-base flex items-center gap-2">
+                <GithubIcon className="w-4 h-4 text-mint" />
                 <span>connect github</span>
               </DialogTitle>
-              <DialogDescription className="text-xs text-[#607b62] pt-1">
+              <DialogDescription className="text-xs text-dim pt-1">
                 commits are stored locally in your browser. connect your github account to push them with backdated timestamps to your repository.
               </DialogDescription>
             </DialogHeader>
 
-            <DialogFooter className="border-[#263626] pt-2">
+            <DialogFooter className="border-line pt-2">
               <button
                 type="button"
                 onClick={() => setIsAuthPromptOpen(false)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] transition-all"
+                className="text-xs px-3 py-1.5 rounded-lg bg-canvas border border-line text-dim hover:text-fg transition-all"
               >
                 continue painting
               </button>
 
               <Link
                 href="/api/auth/github"
-                className="text-xs font-bold text-[#111810] bg-[#99d19c] hover:bg-[#8cd48f] px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
+                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
               >
                 <span>connect github</span>
                 <ArrowRight className="w-3.5 h-3.5" />

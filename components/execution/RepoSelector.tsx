@@ -36,12 +36,12 @@ export default function RepoSelector({
 
   if (!userLogin) {
     return (
-      <div className="flex items-center gap-2 text-xs text-[#607b62] font-mono">
-        <FolderGit2 className="w-3.5 h-3.5 text-[#607b62]" />
+      <div className="flex items-center gap-2 text-xs text-dim font-mono">
+        <FolderGit2 className="w-3.5 h-3.5 text-dim" />
         <span>repo:</span>
         <Link
           href="/api/auth/github"
-          className="text-xs text-[#607b62] hover:text-[#dbead9] bg-[#111810] px-2 py-0.5 rounded border border-[#263626] transition-all"
+          className="text-xs text-dim hover:text-fg bg-canvas px-2 py-0.5 rounded border border-line transition-all"
         >
           <span>connect github</span>
         </Link>
@@ -111,17 +111,17 @@ export default function RepoSelector({
 
   return (
     <div className="flex items-center gap-2 font-mono text-xs">
-      <FolderGit2 className="w-3.5 h-3.5 text-[#607b62]" />
-      <span className="text-[#607b62]">repo:</span>
+      <FolderGit2 className="w-3.5 h-3.5 text-dim" />
+      <span className="text-dim">repo:</span>
 
       {!isCreating ? (
         <div className="flex items-center gap-1.5">
           <Select value={currentRepoName} onValueChange={handleSelectRepo}>
-            <SelectTrigger className="w-[180px] sm:w-[210px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]">
+            <SelectTrigger className="w-[180px] sm:w-[210px] h-8 text-xs bg-canvas border-line text-fg font-mono focus:border-line-strong">
               <SelectValue placeholder="select repo" />
             </SelectTrigger>
-            <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
-              <SelectItem value="__create_new__" className="text-[#8cd48f] font-mono border-b border-[#263626] mb-1">
+            <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
+              <SelectItem value="__create_new__" className="text-mint font-mono border-b border-line mb-1">
                 <span className="flex items-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   <span>create new repo...</span>
@@ -132,9 +132,9 @@ export default function RepoSelector({
                 <SelectItem key={r.name} value={r.name} className="font-mono">
                   <span className="flex items-center gap-1.5">
                     {r.private ? (
-                      <Lock className="w-3 h-3 text-[#607b62]" />
+                      <Lock className="w-3 h-3 text-dim" />
                     ) : (
-                      <Globe className="w-3 h-3 text-[#607b62]" />
+                      <Globe className="w-3 h-3 text-dim" />
                     )}
                     <span>{r.name}</span>
                   </span>
@@ -146,10 +146,10 @@ export default function RepoSelector({
           <button
             type="button"
             onClick={() => setIsCreating(true)}
-            className="h-8 px-2 rounded-md bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] hover:border-[#374d37] text-xs flex items-center gap-1 transition-all"
+            className="h-8 px-2 rounded-md bg-canvas border border-line text-dim hover:text-fg hover:border-line-strong text-xs flex items-center gap-1 transition-all"
             title="Create new repository"
           >
-            <Plus className="w-3 h-3 text-[#8cd48f]" />
+            <Plus className="w-3 h-3 text-mint" />
             <span className="hidden sm:inline">new</span>
           </button>
         </div>
@@ -160,11 +160,11 @@ export default function RepoSelector({
             value={newRepoName}
             onChange={(e) => setNewRepoName(e.target.value)}
             placeholder="repo-name"
-            className="w-[140px] h-8 text-xs bg-[#111810] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+            className="w-[140px] h-8 text-xs bg-canvas border-line text-fg font-mono focus:border-line-strong"
             required
           />
 
-          <label className="flex items-center gap-1 text-xs text-[#607b62] cursor-pointer">
+          <label className="flex items-center gap-1 text-xs text-dim cursor-pointer">
             <Checkbox
               checked={isPrivate}
               onCheckedChange={(checked) => setIsPrivate(Boolean(checked))}
@@ -176,7 +176,7 @@ export default function RepoSelector({
             type="submit"
             size="sm"
             disabled={isSubmitting || !newRepoName.trim()}
-            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-2.5 font-bold gap-1 disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
+            className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-2.5 font-bold gap-1 disabled:opacity-30 disabled:bg-line disabled:text-dim"
           >
             {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
             <span>create</span>
@@ -188,7 +188,7 @@ export default function RepoSelector({
               setIsCreating(false);
               setError(null);
             }}
-            className="h-8 px-2 rounded-md bg-[#111810] border border-[#263626] text-[#607b62] hover:text-[#dbead9] text-xs transition-all"
+            className="h-8 px-2 rounded-md bg-canvas border border-line text-dim hover:text-fg text-xs transition-all"
           >
             cancel
           </button>

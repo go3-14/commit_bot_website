@@ -109,19 +109,19 @@ export default function ContributionGraph({
   return (
     <div className="w-full select-none font-mono">
       {/* Monkeytype Heatmap Card */}
-      <div className="w-full bg-[#182319] border border-[#263626] rounded-xl p-5 shadow-lg">
+      <div className="w-full bg-panel border border-line rounded-xl p-5 shadow-lg">
         {/* Top Control Bar inside card */}
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#263626]/70">
+        <div className="flex items-center justify-between mb-4 pb-2 border-b border-line/70">
           <div className="flex items-center gap-3">
             {/* Year selector styled as Monkeytype dropdown */}
             <Select
               value={year.toString()}
               onValueChange={(val) => val && onYearChange?.(parseInt(val, 10))}
             >
-              <SelectTrigger className="h-7 w-[140px] text-xs bg-[#111810] border-[#263626] text-[#8cd48f] font-mono focus:ring-0">
+              <SelectTrigger className="h-7 w-[140px] text-xs bg-canvas border-line text-mint font-mono focus:ring-0">
                 <SelectValue placeholder="year" />
               </SelectTrigger>
-              <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
+              <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
                 {years.map((y) => (
                   <SelectItem key={y} value={y.toString()}>
                     {y} activity
@@ -130,7 +130,7 @@ export default function ContributionGraph({
               </SelectContent>
             </Select>
 
-            <span className="text-xs text-[#607b62]">
+            <span className="text-xs text-dim">
               {totalContributions.toLocaleString()} contributions
             </span>
 
@@ -142,13 +142,13 @@ export default function ContributionGraph({
           </div>
 
           {/* Monkeytype Heatmap Legend */}
-          <div className="flex items-center gap-1.5 text-xs text-[#607b62]">
+          <div className="flex items-center gap-1.5 text-xs text-dim">
             <span>less</span>
             <div className="w-[11px] h-[11px] rounded-[2px] bg-[#141d14] border border-[#1e2b1f]" />
             <div className="w-[11px] h-[11px] rounded-[2px] bg-[#234226]" />
             <div className="w-[11px] h-[11px] rounded-[2px] bg-[#36683b]" />
             <div className="w-[11px] h-[11px] rounded-[2px] bg-[#5ca162]" />
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#8cd48f]" />
+            <div className="w-[11px] h-[11px] rounded-[2px] bg-mint" />
             <span>more</span>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function ContributionGraph({
             <GraphMonthLabels year={year} />
 
             {/* Monkeytype Centered Footnote */}
-            <div className="mt-4 text-center text-[10px] text-[#607b62]">
+            <div className="mt-4 text-center text-[10px] text-dim">
               Note: All activity data is using UTC time.
             </div>
           </div>

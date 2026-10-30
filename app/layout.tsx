@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${jetbrainsMono.variable} font-mono antialiased min-h-screen bg-[#111810] text-[#dbead9] selection:bg-[#99d19c] selection:text-[#111810]`}
+        className={`${jetbrainsMono.variable} font-mono antialiased min-h-screen bg-canvas text-fg selection:bg-mint-strong selection:text-canvas`}
       >
         <TooltipProvider delay={150}>
           {children}

@@ -91,15 +91,15 @@ export default function ImageTool() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
-      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
-        <span className="text-xs text-[#dbead9] flex items-center gap-2">
-          <ImageIcon className="w-4 h-4 text-[#8cd48f]" />
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-canvas border border-line font-mono">
+      <div className="flex items-center justify-between border-b border-line pb-3">
+        <span className="text-xs text-fg flex items-center gap-2">
+          <ImageIcon className="w-4 h-4 text-mint" />
           <span>image converter</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-[#8cd48f] flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1 animate-pulse">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
@@ -112,7 +112,7 @@ export default function ImageTool() {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-[#263626] hover:border-[#8cd48f]/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer bg-[#182319] transition-colors"
+          className="border-2 border-dashed border-line hover:border-mint/50 rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer bg-panel transition-colors"
         >
           <input
             type="file"
@@ -128,19 +128,19 @@ export default function ImageTool() {
               <img
                 src={imagePreviewUrl}
                 alt="Uploaded preview"
-                className="max-h-24 max-w-[160px] object-contain rounded-md border border-[#263626]"
+                className="max-h-24 max-w-[160px] object-contain rounded-md border border-line"
               />
-              <span className="text-xs text-[#607b62]">click to replace</span>
+              <span className="text-xs text-dim">click to replace</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 text-center">
-              <div className="w-8 h-8 rounded-full bg-[#111810] border border-[#263626] flex items-center justify-center text-[#607b62]">
+              <div className="w-8 h-8 rounded-full bg-canvas border border-line flex items-center justify-center text-dim">
                 <UploadCloud className="w-4 h-4" />
               </div>
-              <span className="text-xs text-[#dbead9]">
+              <span className="text-xs text-fg">
                 drop image or click to browse
               </span>
-              <span className="text-[11px] text-[#607b62]">
+              <span className="text-[11px] text-dim">
                 scaled to 7-row canvas height
               </span>
             </div>
@@ -151,7 +151,7 @@ export default function ImageTool() {
         <div className="flex flex-col gap-3 justify-between">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[#607b62] flex items-center gap-1.5">
+              <span className="text-xs text-dim flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5" />
                 <span>mode:</span>
               </span>
@@ -161,8 +161,8 @@ export default function ImageTool() {
                   onClick={() => setMode('grayscale')}
                   className={`text-xs px-2.5 py-1 rounded-md transition-all ${
                     mode === 'grayscale'
-                      ? 'bg-[#99d19c] text-[#111810] font-bold'
-                      : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
+                      ? 'bg-mint-strong text-canvas font-bold'
+                      : 'bg-panel border border-line text-dim hover:text-fg'
                   }`}
                 >
                   grayscale
@@ -172,8 +172,8 @@ export default function ImageTool() {
                   onClick={() => setMode('binary')}
                   className={`text-xs px-2.5 py-1 rounded-md transition-all ${
                     mode === 'binary'
-                      ? 'bg-[#99d19c] text-[#111810] font-bold'
-                      : 'bg-[#182319] border border-[#263626] text-[#607b62] hover:text-[#dbead9]'
+                      ? 'bg-mint-strong text-canvas font-bold'
+                      : 'bg-panel border border-line text-dim hover:text-fg'
                   }`}
                 >
                   binary
@@ -183,9 +183,9 @@ export default function ImageTool() {
 
             {mode === 'binary' && (
               <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between text-xs text-[#607b62]">
+                <div className="flex justify-between text-xs text-dim">
                   <span>threshold</span>
-                  <span className="text-[#8cd48f]">{threshold}</span>
+                  <span className="text-mint">{threshold}</span>
                 </div>
                 <Slider
                   min={0}
@@ -201,7 +201,7 @@ export default function ImageTool() {
             )}
 
             <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#607b62]">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-dim">
                 <Checkbox
                   checked={invert}
                   onCheckedChange={(checked) => setInvert(Boolean(checked))}
@@ -210,14 +210,14 @@ export default function ImageTool() {
               </label>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#607b62]">start week:</span>
+                <span className="text-xs text-dim">start week:</span>
                 <Input
                   type="number"
                   min={0}
                   max={50}
                   value={offset}
                   onChange={(e) => setOffset(Math.max(0, parseInt(e.target.value || '0', 10)))}
-                  className="w-14 h-7 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+                  className="w-14 h-7 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
                 />
               </div>
             </div>
@@ -225,12 +225,12 @@ export default function ImageTool() {
 
           {/* Processed Pixel Matrix Preview */}
           {processed && (
-            <div className="p-2 rounded-lg bg-[#182319] border border-[#263626] flex flex-col gap-1">
-              <div className="flex items-center justify-between text-[10px] text-[#607b62]">
+            <div className="p-2 rounded-lg bg-panel border border-line flex flex-col gap-1">
+              <div className="flex items-center justify-between text-[10px] text-dim">
                 <span>preview ({processed.width}w x 7h)</span>
-                <span className="text-[#8cd48f]">{processed.totalCommits} commits</span>
+                <span className="text-mint">{processed.totalCommits} commits</span>
               </div>
-              <div className="font-mono text-[9px] leading-[9px] tracking-widest text-[#8cd48f] overflow-x-auto whitespace-pre bg-[#111810] p-1.5 rounded border border-[#263626]">
+              <div className="font-mono text-[9px] leading-[9px] tracking-widest text-mint overflow-x-auto whitespace-pre bg-canvas p-1.5 rounded border border-line">
                 {processed.preview.join('\n')}
               </div>
             </div>
@@ -242,7 +242,7 @@ export default function ImageTool() {
               size="sm"
               disabled={!processed}
               onClick={handleApply}
-              className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
+              className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-4 font-bold disabled:opacity-30 disabled:bg-line disabled:text-dim"
             >
               apply image
             </Button>

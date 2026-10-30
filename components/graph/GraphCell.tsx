@@ -113,7 +113,7 @@ export default function GraphCell({
                     isQueued
                       ? 'border-[#f59e0b] ring-2 ring-[#eab308] z-10 scale-105 shadow-[0_0_8px_rgba(234,179,8,0.7)]'
                       : realCount > 0
-                      ? 'border-[#2f5533] hover:ring-1 hover:ring-[#8cd48f] hover:scale-110'
+                      ? 'border-[#2f5533] hover:ring-1 hover:ring-mint hover:scale-110'
                       : 'border-[#1e2b1f] hover:border-[#38543a] hover:scale-110'
                   }`}
                   style={{
@@ -130,7 +130,7 @@ export default function GraphCell({
           }
         />
         {!isPopoverOpen && (
-          <TooltipContent className="bg-[#182319] text-[#dbead9] border-[#263626] text-xs py-1 px-2.5 font-mono shadow-xl z-50">
+          <TooltipContent className="bg-panel text-fg border-line text-xs py-1 px-2.5 font-mono shadow-xl z-50">
             {tooltipText}
           </TooltipContent>
         )}
@@ -140,14 +140,14 @@ export default function GraphCell({
         align="center"
         side="top"
         sideOffset={6}
-        className="w-64 p-3.5 bg-[#182319] border-[#263626] text-[#dbead9] shadow-2xl rounded-xl z-50 font-mono"
+        className="w-64 p-3.5 bg-panel border-line text-fg shadow-2xl rounded-xl z-50 font-mono"
       >
         <div className="flex flex-col gap-3">
-          <div className="border-b border-[#263626] pb-2">
-            <div className="font-semibold text-[#8cd48f] text-xs">
+          <div className="border-b border-line pb-2">
+            <div className="font-semibold text-mint text-xs">
               {formattedDate}
             </div>
-            <div className="text-[11px] text-[#607b62] mt-0.5">
+            <div className="text-[11px] text-dim mt-0.5">
               {realCount} existing contributions
               {isQueued && (
                 <span className="text-[#f59e0b] font-medium ml-1">
@@ -158,21 +158,21 @@ export default function GraphCell({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] text-[#607b62]">
+            <span className="text-[11px] text-dim">
               commits to queue:
             </span>
-            <div className="flex items-center justify-between bg-[#111810] border border-[#263626] rounded-lg p-1">
+            <div className="flex items-center justify-between bg-canvas border border-line rounded-lg p-1">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setLocalCount((prev) => Math.max(0, prev - 1))}
-                className="h-7 w-7 text-[#607b62] hover:text-[#dbead9] hover:bg-[#182319]"
+                className="h-7 w-7 text-dim hover:text-fg hover:bg-panel"
               >
                 <Minus className="w-3.5 h-3.5" />
               </Button>
 
-              <span className="font-mono text-sm font-bold text-[#8cd48f] px-3">
+              <span className="font-mono text-sm font-bold text-mint px-3">
                 {localCount}
               </span>
 
@@ -181,7 +181,7 @@ export default function GraphCell({
                 variant="ghost"
                 size="icon"
                 onClick={() => setLocalCount((prev) => Math.min(20, prev + 1))}
-                className="h-7 w-7 text-[#607b62] hover:text-[#dbead9] hover:bg-[#182319]"
+                className="h-7 w-7 text-dim hover:text-fg hover:bg-panel"
               >
                 <Plus className="w-3.5 h-3.5" />
               </Button>
@@ -199,8 +199,8 @@ export default function GraphCell({
                 }}
                 className={`flex-1 py-1 rounded text-[11px] font-mono border transition-all ${
                   localCount === preset
-                    ? 'border-[#99d19c] bg-[#99d19c] text-[#111810] font-bold'
-                    : 'border-[#263626] bg-[#111810] text-[#607b62] hover:text-[#dbead9]'
+                    ? 'border-mint-strong bg-mint-strong text-canvas font-bold'
+                    : 'border-line bg-canvas text-dim hover:text-fg'
                 }`}
               >
                 {preset}
@@ -208,14 +208,14 @@ export default function GraphCell({
             ))}
           </div>
 
-          <div className="flex items-center gap-2 pt-1 border-t border-[#263626]">
+          <div className="flex items-center gap-2 pt-1 border-t border-line">
             {isQueued && (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleClearCell}
-                className="h-7 text-xs border-[#263626] bg-[#111810] hover:bg-red-950/40 hover:text-red-400 text-[#607b62] flex-1 gap-1"
+                className="h-7 text-xs border-line bg-canvas hover:bg-red-950/40 hover:text-red-400 text-dim flex-1 gap-1"
               >
                 <Trash2 className="w-3 h-3" />
                 <span>clear</span>
@@ -226,7 +226,7 @@ export default function GraphCell({
               type="button"
               size="sm"
               onClick={() => handleApplyCount(localCount)}
-              className="h-7 text-xs bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] font-semibold flex-1 gap-1"
+              className="h-7 text-xs bg-mint-strong hover:bg-mint text-canvas font-semibold flex-1 gap-1"
             >
               <Check className="w-3 h-3" />
               <span>apply</span>

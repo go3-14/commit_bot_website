@@ -27,7 +27,7 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
   }
 
   return (
-    <div className="flex text-[11px] text-[#607b62] font-mono h-5 relative select-none pl-14 mt-2">
+    <div className="flex text-[11px] text-dim font-mono h-5 relative select-none pl-14 mt-2">
       {monthLabels.map((item, idx) => {
         // Each column is 13px cell + 3px gap = 16px
         const left = item.weekIndex * 16;
