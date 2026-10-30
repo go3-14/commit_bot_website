@@ -41,7 +41,7 @@ export default function FillTool() {
 
     applyBulkCells(entries);
     const totalCommits = entries.reduce((sum, e) => sum + e.count, 0);
-    setFeedback(`Queued ${totalCommits.toLocaleString()} commits across ${entries.length} dates for ${year}!`);
+    setFeedback(`${totalCommits.toLocaleString()} commits queued on ${entries.length} days.`);
     setTimeout(() => setFeedback(null), 4000);
   };
 
@@ -54,11 +54,11 @@ export default function FillTool() {
       <div className="flex items-center justify-between border-b border-line pb-3">
         <span className="text-xs text-fg flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-mint" />
-          <span>fill year generator</span>
+          <span>fill year</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-mint flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
@@ -123,7 +123,7 @@ export default function FillTool() {
         <AlertCircle className="w-3.5 h-3.5 text-dim" />
         <span>
           queues ~<strong className="text-mint">{estimatedMin}</strong> to{' '}
-          <strong className="text-mint">{estimatedMax}</strong> commits across ~{estimatedDays} dates.
+          <strong className="text-mint">{estimatedMax}</strong> commits across ~{estimatedDays} days. One push is limited to 500 commits.
         </span>
       </div>
     </div>

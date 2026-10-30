@@ -62,7 +62,7 @@ export default function RandomTool() {
     const entries = Object.values(cellMap);
     applyBulkCells(entries);
 
-    setFeedback(`Randomly scattered ${totalCommits - remaining} commits across ${entries.length} dates!`);
+    setFeedback(`${totalCommits - remaining} commits queued on ${entries.length} days.`);
     setTimeout(() => setFeedback(null), 4000);
   };
 
@@ -71,11 +71,11 @@ export default function RandomTool() {
       <div className="flex items-center justify-between border-b border-line pb-3">
         <span className="text-xs text-fg flex items-center gap-2">
           <Shuffle className="w-4 h-4 text-mint" />
-          <span>random commit scatter</span>
+          <span>random</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-mint flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>

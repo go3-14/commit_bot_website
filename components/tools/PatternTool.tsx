@@ -57,7 +57,7 @@ export default function PatternTool() {
         }))
       );
 
-      setFeedback(`Applied ${cells.length} cells to the queue!`);
+      setFeedback(`${cells.length} days queued.`);
       setTimeout(() => setFeedback(null), 3000);
     } catch (err: unknown) {
       console.error(err);
@@ -78,7 +78,7 @@ export default function PatternTool() {
             }`}
           >
             <Type className="w-3.5 h-3.5" />
-            <span>text typography</span>
+            <span>text</span>
           </button>
 
           <button
@@ -91,12 +91,12 @@ export default function PatternTool() {
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>preset shapes</span>
+            <span>shapes</span>
           </button>
         </div>
 
         {feedback && (
-          <span className="text-xs text-mint font-mono animate-pulse">
+          <span className="text-xs text-mint font-mono">
             ✓ {feedback}
           </span>
         )}

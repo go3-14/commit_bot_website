@@ -86,7 +86,7 @@ export default function ImageTool() {
     }
 
     applyBulkCells(bulkEntries);
-    setFeedback(`Applied ${processed.activeCells} active cells to graph!`);
+    setFeedback(`${processed.activeCells} days queued.`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -95,11 +95,11 @@ export default function ImageTool() {
       <div className="flex items-center justify-between border-b border-line pb-3">
         <span className="text-xs text-fg flex items-center gap-2">
           <ImageIcon className="w-4 h-4 text-mint" />
-          <span>image converter</span>
+          <span>image</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-mint flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
