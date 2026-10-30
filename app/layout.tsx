@@ -11,7 +11,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'commit-bot',
-  description: 'interactive github contribution graph canvas',
+  description: 'Paint your GitHub contribution graph with backdated commits.',
 };
 
 export default function RootLayout({
