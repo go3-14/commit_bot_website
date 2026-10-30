@@ -1,130 +1,70 @@
-# commit-bot-web 🟩
+# commit-bot
 
-> Paint your GitHub contribution graph from an interactive web canvas — powered by the GitHub Git Data API. No local git required.
+Paint your GitHub contribution graph. Pick days on a heatmap (by hand, from text or shapes, from an image, or at random) and the app creates backdated commits in one of your own repositories through the GitHub Git Data API. No local git needed.
 
----
+## How it works
 
-## 🌟 Overview
+GitHub's contribution graph uses a commit's author date. For each painted day the server creates a blob, a tree and a commit with a custom `author.date` / `committer.date`, chained on top of the repository's default branch, then fast-forwards the branch ref.
 
-**commit-bot-web** is a fullstack Next.js web application that connects with your GitHub account, renders your real contribution heatmap, lets you draw or generate patterns, and creates backdated commits through the GitHub REST API.
+Pipeline per commit: `git/blobs` -> `git/trees` -> `git/commits`, then `git/refs` is advanced (checkpoint every 50 commits and at the end, never forced).
 
-### Features
+Rules for the graph to update:
 
-- 🔗 **GitHub OAuth Login**: Quick 1-click connect with verified email detection.
-- 📊 **Real GitHub Graph**: Fetched in real-time via GitHub GraphQL API.
-- 🖌️ **Interactive Painting**: Click, drag, and paint individual cells or ranges.
-- 🔤 **Text Typography & Preset Shapes**: 5×7 pixel font generator and built-in shapes (heart, star, smiley, check, skull, wave, diamond).
-- 🖼️ **Client-Side Canvas Image Converter**: Drag and drop any image; client-side HTML5 Canvas maps pixel darkness to commit intensities.
-- 🪣 **Full Year Fill**: Automatically fill entire calendar years with organic randomized daily commits.
-- 🎲 **Random Scatter**: Scatter N commits organically across random dates.
-- ⚡ **Sequential Git Data API Pipeline**: Commits are created sequentially (blob → tree → commit) and chained with custom `author.date` ISO 8601 timestamps.
-- 🔒 **Zero Credential Leakage**: Secrets and access tokens live exclusively on the server in encrypted `httpOnly` cookies.
+- Commits must be on the repository's default branch.
+- Forks do not count. Use a repository you own.
+- The author email must be verified on your GitHub account (the primary verified email is used).
+- GitHub may take a few minutes to refresh the graph.
 
----
+## Setup
 
-## 🛠️ How It Works (The Backdating Mechanism)
+1. Create a GitHub OAuth App at <https://github.com/settings/developers>.
+   - Homepage URL: `http://localhost:3000`
+   - Callback URL: `http://localhost:3000/api/auth/github/callback`
+2. Create `.env.local` (see `.env.example`):
 
-GitHub calculates contribution graph activity based on the commit's `author.date` field, not the time the API request was made:
-
-```http
-POST https://api.github.com/repos/{owner}/{repo}/git/commits
-Authorization: Bearer {token}
-
-{
-  "message": "chore: update",
-  "author": {
-    "name": "User Name",
-    "email": "user@example.com",
-    "date": "2024-03-15T14:23:00Z"    <-- Custom backdated timestamp
-  },
-  "committer": {
-    "name": "User Name",
-    "email": "user@example.com",
-    "date": "2024-03-15T14:23:00Z"
-  },
-  "parents": ["<sha-of-parent-commit>"],
-  "tree": "<sha-of-tree>"
-}
-```
-
-### Commit Pipeline:
-1. `GET /repos/{owner}/{repo}/git/refs/heads/{branch}`: Resolves HEAD commit SHA.
-2. `POST /repos/{owner}/{repo}/git/blobs`: Writes updated timestamp line to `contributions.md`.
-3. `POST /repos/{owner}/{repo}/git/trees`: Creates a new tree pointing to the blob.
-4. `POST /repos/{owner}/{repo}/git/commits`: Creates the commit with custom `author.date`.
-5. Checkpoint updates every 50 commits to protect progress against connection timeouts.
-6. `PATCH /repos/{owner}/{repo}/git/refs/heads/{branch}`: Updates the branch reference (`force: true`).
-
----
-
-## 🔒 Security Architecture
-
-| Security Threat | Mitigation |
-|---|---|
-| Token theft via XSS | `gh_token` is stored in an `httpOnly`, `sameSite: 'lax'` cookie. Browser JavaScript cannot access it. |
-| Client secret leakage | `GITHUB_CLIENT_SECRET` is used exclusively in server routes (`/api/auth/github/callback`). |
-| CSRF attacks | SameSite cookie policy prevents cross-site request forging. |
-| Malicious framing | Security headers include `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff`. |
-| Unverified commit author | Commit author email is fetched from GitHub's verified primary emails list. |
-
----
-
-## 🚀 Setup & Local Development
-
-### 1. Create a GitHub OAuth App
-
-1. Visit [GitHub Developer Settings → OAuth Apps → New OAuth App](https://github.com/settings/developers).
-2. Fill in the details:
-   - **Application name:** `commit-bot-web`
-   - **Homepage URL:** `http://localhost:3000` (for dev) or `https://your-app.vercel.app` (for production)
-   - **Authorization callback URL:** `http://localhost:3000/api/auth/github/callback`
-3. Click **Register application**.
-4. Copy the **Client ID** and click **Generate a new client secret**.
-
-### 2. Configure Environment Variables
-
-Create `.env.local` in the project root:
-
-```env
-GITHUB_CLIENT_ID=your_oauth_client_id
-GITHUB_CLIENT_SECRET=your_oauth_client_secret
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-```
-
-### 3. Install & Run
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 🌐 Deployment to Vercel
-
-1. Push your repository to GitHub.
-2. Import the project in [Vercel](https://vercel.com/new).
-3. Under **Environment Variables**, add:
-   - `GITHUB_CLIENT_ID` (Your GitHub OAuth Client ID)
-   - `GITHUB_CLIENT_SECRET` (Your GitHub OAuth Client Secret)
-   - `NEXT_PUBLIC_BASE_URL` (`https://your-domain.vercel.app`)
-4. In your GitHub OAuth App settings, update the callback URL to:
+   ```env
+   GITHUB_CLIENT_ID=
+   GITHUB_CLIENT_SECRET=
+   NEXT_PUBLIC_BASE_URL=http://localhost:3000
+   SESSION_SECRET=   # 32+ chars: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
    ```
-   https://your-domain.vercel.app/api/auth/github/callback
+
+3. Install and run:
+
+   ```bash
+   npm install
+   npm run dev
    ```
-   *(Or create a separate OAuth App specifically for production).*
-5. Click **Deploy**.
 
----
+Scripts: `npm run dev`, `npm run build`, `npm run start`, `npm run lint`.
 
-## ⚠️ Important Rules for GitHub Heatmap Updates
+## Deploying
 
-- **Default Branch Only:** Commits must be on the repository's default branch (usually `main`).
-- **No Forks:** Commits to forked repositories do **not** count on GitHub's contribution graph. Always commit to a repository you own.
-- **Verified Email:** The author email must be a verified email on your GitHub account.
-- **Update Delay:** GitHub caches contribution graphs. While commits appear in your repository immediately, the heatmap may take anywhere from 5 minutes to 24 hours to recalculate.
+Set the same four environment variables on your host. `NEXT_PUBLIC_BASE_URL` is required in production and must be the exact public origin (for example `https://example.com`); it is used for the OAuth redirect URI and the CSRF origin check. Update the OAuth App callback URL to `https://<your-domain>/api/auth/github/callback`.
+
+The rate limiter is in memory, so it only holds on a single server instance. On serverless or multi-instance hosting, back `lib/rate-limit.ts` with a shared store (Redis, Vercel KV, Upstash).
+
+## Security model
+
+| Area | What is done |
+| --- | --- |
+| Session | The GitHub token is encrypted with AES-256-GCM (key derived from `SESSION_SECRET`) inside an `httpOnly`, `SameSite=Lax`, `Secure` cookie (`__Host-` prefixed in production). Expires after 8 hours. The browser never sees the token. |
+| OAuth | Authorization code flow with a random `state` and PKCE (S256), stored in a short-lived sealed cookie and compared in constant time. The redirect URI comes from `NEXT_PUBLIC_BASE_URL`, never from the Host header. |
+| Sign out | POST only, origin checked, and the token is revoked at GitHub. |
+| CSRF | State-changing routes require a matching `Origin` header and a JSON content type. |
+| Execution limits | The server derives owner, branch and author identity itself. The target must be a repository you own that is not a fork or archived. Plans are validated: real dates between 2008 and today, 1-20 commits per day, at most 366 days and 500 commits per run. One run per user at a time, and a per-user request rate limit. |
+| Git safety | Branch updates are fast-forward only (no force push). Closing the tab stops the run and keeps the commits made so far. |
+| Browser hardening | Nonce-based CSP (`script-src` with `strict-dynamic`), HSTS, `frame-ancestors 'none'`, `nosniff`, COOP/CORP, strict referrer and permissions policies, `no-store` on API responses. |
+| Errors | Clients get generic messages; details are logged server side. Auth error codes in the URL are mapped to fixed messages. |
+
+Known tradeoff: GitHub OAuth Apps can only grant the broad `repo` scope for private repository access, so a leaked token would expose private repositories. Use a dedicated repository, keep the session short, and sign out when finished (this revokes the token). Switching the scope to `public_repo` in `app/api/auth/github/route.ts` limits access to public repositories only.
+
+## Project layout
+
+- `app/` pages and API routes (`api/auth/*`, `api/execute`, `api/repos`, `api/me`)
+- `proxy.ts` CSP nonce and header injection
+- `lib/session.ts`, `lib/oauth.ts`, `lib/security.ts`, `lib/rate-limit.ts` session, OAuth, CSRF and rate limiting
+- `lib/plan-validation.ts`, `lib/commit-executor.ts` plan checks and the Git Data API pipeline
+- `lib/core/` grid and date mapping, 5x7 font and pattern engine
+- `store/graph-store.ts` painted days, keyed by UTC date
+- `components/graph`, `components/tools`, `components/execution` UI
