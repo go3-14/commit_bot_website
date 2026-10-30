@@ -1,4 +1,4 @@
-import { ContributionDay } from '@/types';
+import type { ContributionDay } from '@/types';
 
 export interface YearInsights {
   total: number;
