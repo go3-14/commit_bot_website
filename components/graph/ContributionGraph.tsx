@@ -185,7 +185,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
               <GraphDayLabels />
 
               <div
-                className="heat-grid flex gap-[3px]"
+                className="heat-grid flex"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerLeave={() => setHover(null)}
@@ -195,7 +195,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
                 onKeyDown={handleKeyDown}
               >
                 {cells.map((column, week) => (
-                  <div key={week} className="flex flex-col gap-[3px]">
+                  <div key={week}>
                     {column.map(({ date, disabled }) => {
                       const real = realByDate.get(date) ?? 0;
                       const queued = queue[date] ?? 0;

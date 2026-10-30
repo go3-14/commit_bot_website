@@ -112,13 +112,25 @@
 }
 
 /* Contribution heatmap */
+:root {
+  --cell: 15px;
+  --gap: 3px;
+}
+
 .heat-grid {
   touch-action: none;
+  gap: var(--gap);
+}
+
+.heat-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
 }
 
 .heat-cell {
-  width: 13px;
-  height: 13px;
+  width: var(--cell);
+  height: var(--cell);
   border-radius: 3px;
   border: 0;
   padding: 0;
