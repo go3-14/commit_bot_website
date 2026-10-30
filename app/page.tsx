@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
 import DashboardClient from './dashboard/DashboardClient';
 import { 
   fetchUser, 
@@ -28,8 +28,8 @@ function generateStarterGraph(year: number): ContributionDay[][] {
 }
 
 export default async function HomePage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('gh_token')?.value;
+  const session = await getSession();
+  const token = session?.token;
   const currentYear = new Date().getFullYear();
 
   if (token) {

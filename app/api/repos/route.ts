@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 import { fetchOwnedRepos, createRepo } from '@/lib/github-api';
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get('gh_token')?.value;
+  const token = getSessionFromRequest(req)?.token;
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get('gh_token')?.value;
+  const token = getSessionFromRequest(req)?.token;
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

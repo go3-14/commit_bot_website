@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 import { executeCommitPlan } from '@/lib/commit-executor';
 import { CommitPlanEntry } from '@/types';
 
@@ -6,7 +7,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get('gh_token')?.value;
+  const token = getSessionFromRequest(req)?.token;
 
   if (!token) {
     return NextResponse.json(
