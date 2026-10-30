@@ -10,7 +10,6 @@ import {
   ArrowRight,
   User as UserIcon
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -36,7 +35,6 @@ import { GitHubUser, ContributionDay, RepoInfo } from '@/types';
 
 interface DashboardClientProps {
   user: GitHubUser | null;
-  email: string | null;
   initialGraph: ContributionDay[][];
   initialRepos: RepoInfo[];
   currentYear: number;
@@ -57,7 +55,6 @@ function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
 
 export default function DashboardClient({
   user,
-  email,
   initialGraph,
   initialRepos,
   currentYear,
@@ -85,7 +82,6 @@ export default function DashboardClient({
   // Available years: current year down to 6 years back
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
 
-  // Computed queue stats for Monkeytype top stats card
   const plan = getCommitPlan();
   const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
   const totalDates = plan.length;
@@ -119,7 +115,7 @@ export default function DashboardClient({
   };
 
   const handleExecutionSuccess = async () => {
-    setSuccessBanner('commits pushed to github. refreshing data...');
+    setSuccessBanner('Commits pushed. GitHub can take a few minutes to update the graph.');
     await refetchGraph(year);
     setTimeout(() => setSuccessBanner(null), 8000);
   };
@@ -132,198 +128,134 @@ export default function DashboardClient({
     }
   };
 
-  const authorEmail = email || user?.email || (user ? `${user.login}@users.noreply.github.com` : '');
-
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-fg font-mono select-none">
-      {/* Minimalist Monkeytype Top Navigation Bar */}
-      <header className="border-b border-line bg-canvas/95 backdrop-blur-md sticky top-0 z-40">
+    <div className="min-h-screen flex flex-col bg-canvas text-fg">
+      <header className="border-b border-line bg-canvas/90 backdrop-blur sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          {/* Logo & Main Context Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 min-w-0">
             <Link href="/" className="flex items-center gap-2 shrink-0 text-mint hover:text-mint-strong transition-colors">
               <GitCommit className="w-5 h-5" />
-              <span className="font-bold text-sm tracking-tight">
-                commit-bot<span className="text-dim text-xs">.web</span>
-              </span>
+              <span className="font-bold text-sm tracking-tight">commit-bot</span>
             </Link>
 
-            <div className="h-4 w-px bg-line hidden sm:block" />
+            <div className="h-4 w-px bg-line hidden md:block" />
 
-            {/* Target Repo Picker */}
             <div className="hidden md:flex items-center">
               <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
             </div>
 
-            {/* Year Selector */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-dim">year:</span>
-              <Select value={year.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-[85px] h-8 text-xs bg-canvas border-line text-fg font-mono focus:border-line-strong">
-                  <SelectValue placeholder="year" />
-                </SelectTrigger>
-                <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
-                  {years.map((y) => (
-                    <SelectItem key={y} value={y.toString()} className="font-mono">
-                      {y}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={year.toString()} onValueChange={handleYearChange}>
+              <SelectTrigger className="w-[84px] h-8 text-xs bg-canvas border-line text-fg font-mono focus:border-line-strong">
+                <SelectValue placeholder="year" />
+              </SelectTrigger>
+              <SelectContent className="bg-panel border-line text-fg text-xs font-mono">
+                {years.map((y) => (
+                  <SelectItem key={y} value={y.toString()} className="font-mono">
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* User Profile or Connect GitHub Button */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             {user ? (
               <>
-                <div className="flex items-center gap-2 bg-panel border border-line rounded-lg py-1 px-2.5">
+                <div className="flex items-center gap-2 py-1 px-2.5 text-xs text-fg">
                   {user.avatarUrl ? (
                     <Image
                       src={user.avatarUrl}
-                      alt={user.login}
-                      width={18}
-                      height={18}
-                      className="rounded-full ring-1 ring-line"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="rounded-full ring-1 ring-line-strong"
                     />
                   ) : (
                     <UserIcon className="w-3.5 h-3.5 text-dim" />
                   )}
-                  <span className="text-xs text-fg">
-                    @{user.login}
-                  </span>
+                  <span className="hidden sm:inline">{user.login}</span>
                 </div>
 
                 <form method="post" action="/api/auth/logout">
                   <button
                     type="submit"
-                    className="text-xs text-dim hover:text-red-400 px-2.5 py-1 rounded-md bg-panel border border-line flex items-center gap-1 transition-all"
-                    title="Logout"
+                    className="text-xs text-dim hover:text-danger px-2.5 py-1.5 rounded-md border border-line flex items-center gap-1.5 transition-colors"
                   >
                     <LogOut className="w-3 h-3" />
-                    <span className="hidden sm:inline">logout</span>
+                    <span className="hidden sm:inline">sign out</span>
                   </button>
                 </form>
               </>
             ) : (
               <Link
                 href="/api/auth/github"
-                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
+                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
-                <span>connect github</span>
+                <span>sign in with github</span>
               </Link>
             )}
           </div>
         </div>
       </header>
 
-      {/* Main Workspace */}
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-5">
-        {/* Mobile Repo Selector */}
-        <div className="flex md:hidden items-center justify-between p-3 rounded-xl border border-line bg-panel">
+      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-4">
+        <div className="flex md:hidden">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
 
         {authError && (
-          <div role="alert" className="p-3 rounded-xl bg-panel border border-red-500/40 text-red-400 text-xs">
+          <div role="alert" className="px-3 py-2 rounded-lg bg-panel border border-danger/40 text-danger text-xs">
             {authError}
           </div>
         )}
 
-        {/* Execution Success Notification */}
         {successBanner && (
-          <div className="p-3 rounded-xl bg-panel border border-mint/50 text-mint text-xs flex items-center gap-2 animate-in fade-in">
+          <div role="status" className="px-3 py-2 rounded-lg bg-panel border border-mint/40 text-mint text-xs flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successBanner}</span>
           </div>
         )}
 
-        {/* Monkeytype User Profile & Stats Header Card */}
-        <section className="w-full bg-panel border border-line rounded-xl p-5 flex flex-wrap items-center justify-between gap-6">
-          {/* Left: User Identity */}
-          <div className="flex items-center gap-3.5">
-            {user?.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt={user.login}
-                width={44}
-                height={44}
-                className="rounded-full ring-2 ring-line"
-              />
-            ) : (
-              <div className="w-11 h-11 rounded-full bg-canvas border border-line flex items-center justify-center text-dim">
-                <UserIcon className="w-5 h-5" />
-              </div>
-            )}
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-fg">
-                {user ? `@${user.login}` : 'guest session'}
-              </span>
-              <span className="text-xs text-dim">
-                {user ? (authorEmail || 'github authenticated') : 'interactive canvas (login to execute)'}
-              </span>
-            </div>
+        <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-1 px-1">
+          <div className="flex items-baseline gap-2">
+            <dd className="text-2xl font-bold text-mint tabular-nums">{totalCommits}</dd>
+            <dt className="text-xs text-dim">queued commits</dt>
           </div>
-
-          {/* Right: Monkeytype Stat Columns */}
-          <div className="flex items-center gap-8 sm:gap-12">
-            <div className="flex flex-col">
-              <span className="text-[11px] text-dim lowercase tracking-wide">queued commits</span>
-              <span className="text-2xl sm:text-3xl font-bold text-mint">{totalCommits}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[11px] text-dim lowercase tracking-wide">active dates</span>
-              <span className="text-2xl sm:text-3xl font-bold text-mint">{totalDates}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[11px] text-dim lowercase tracking-wide">api calls</span>
-              <span className="text-2xl sm:text-3xl font-bold text-mint">{estimatedApiCalls}</span>
-            </div>
+          <div className="flex items-baseline gap-2">
+            <dd className="text-2xl font-bold text-fg tabular-nums">{totalDates}</dd>
+            <dt className="text-xs text-dim">days</dt>
           </div>
-        </section>
+          <div className="flex items-baseline gap-2">
+            <dd className="text-2xl font-bold text-fg tabular-nums">{estimatedApiCalls}</dd>
+            <dt className="text-xs text-dim">api calls</dt>
+          </div>
+        </dl>
 
-        {/* The Hero: GitHub Contribution Heatmap */}
-        <section className="w-full flex flex-col items-center">
-          {isLoadingGraph && (
-            <div className="text-xs text-dim animate-pulse mb-1">
-              synchronizing contribution data...
-            </div>
-          )}
+        <section className="w-full" aria-busy={isLoadingGraph}>
           <ContributionGraph realData={graphData} year={year} />
         </section>
 
-        {/* Tool Strip Toolbar */}
-        <section className="w-full">
-          <ToolPanel />
-        </section>
+        <ToolPanel />
 
-        {/* Commit Queue Action Bar */}
-        <section className="w-full mt-auto">
-          <CommitQueue onExecute={handleExecuteClick} />
-        </section>
+        <CommitQueue onExecute={handleExecuteClick} />
 
-        {/* Execution Streaming Modal (when authed) */}
-        {user && (
+        {user && isExecutionModalOpen && (
           <ExecutionModal
-            isOpen={isExecutionModalOpen}
             onClose={() => setIsExecutionModalOpen(false)}
-            userName={user.name || user.login}
-            userEmail={authorEmail}
             onSuccess={handleExecutionSuccess}
           />
         )}
 
-        {/* Auth prompt modal if unauthenticated user clicks Execute */}
         <Dialog open={isAuthPromptOpen} onOpenChange={setIsAuthPromptOpen}>
           <DialogContent className="bg-panel border-line text-fg sm:max-w-md shadow-2xl font-mono">
             <DialogHeader>
               <DialogTitle className="text-fg text-base flex items-center gap-2">
                 <GithubIcon className="w-4 h-4 text-mint" />
-                <span>connect github</span>
+                <span>sign in to push commits</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-dim pt-1">
-                commits are stored locally in your browser. connect your github account to push them with backdated timestamps to your repository.
+                Your painted days stay in this browser. Sign in with github to create the commits in one of your repositories.
               </DialogDescription>
             </DialogHeader>
 
@@ -331,16 +263,16 @@ export default function DashboardClient({
               <button
                 type="button"
                 onClick={() => setIsAuthPromptOpen(false)}
-                className="text-xs px-3 py-1.5 rounded-lg bg-canvas border border-line text-dim hover:text-fg transition-all"
+                className="text-xs px-3 py-1.5 rounded-lg bg-canvas border border-line text-dim hover:text-fg transition-colors"
               >
-                continue painting
+                keep painting
               </button>
 
               <Link
                 href="/api/auth/github"
-                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
+                className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
               >
-                <span>connect github</span>
+                <span>sign in</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </DialogFooter>

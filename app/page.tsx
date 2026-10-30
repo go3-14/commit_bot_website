@@ -3,7 +3,6 @@ import { authErrorMessage } from '@/lib/auth-errors';
 import DashboardClient from './dashboard/DashboardClient';
 import { 
   fetchUser, 
-  fetchPrimaryEmail, 
   fetchContributionGraph, 
   fetchOwnedRepos 
 } from '@/lib/github-api';
@@ -29,13 +28,12 @@ function generateStarterGraph(year: number): ContributionDay[][] {
 }
 
 async function loadUserData(token: string, year: number) {
-  const [user, email, initialGraph, initialRepos] = await Promise.all([
+  const [user, initialGraph, initialRepos] = await Promise.all([
     fetchUser(token),
-    fetchPrimaryEmail(token),
     fetchContributionGraph(token, year),
     fetchOwnedRepos(token),
   ]);
-  return { user, email, initialGraph, initialRepos };
+  return { user, initialGraph, initialRepos };
 }
 
 export default async function HomePage({
@@ -60,7 +58,6 @@ export default async function HomePage({
       return (
         <DashboardClient
           user={data.user}
-          email={data.email}
           initialGraph={data.initialGraph}
           initialRepos={data.initialRepos}
           currentYear={currentYear}
@@ -76,7 +73,6 @@ export default async function HomePage({
   return (
     <DashboardClient
       user={null}
-      email={null}
       initialGraph={starterGraph}
       initialRepos={[]}
       currentYear={currentYear}
