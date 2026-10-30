@@ -192,14 +192,16 @@ export default function DashboardClient({
                   </span>
                 </div>
 
-                <Link
-                  href="/api/auth/logout"
-                  className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded-md bg-[#182319] border border-[#263626] flex items-center gap-1 transition-all"
-                  title="Logout"
-                >
-                  <LogOut className="w-3 h-3" />
-                  <span className="hidden sm:inline">logout</span>
-                </Link>
+                <form method="post" action="/api/auth/logout">
+                  <button
+                    type="submit"
+                    className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded-md bg-[#182319] border border-[#263626] flex items-center gap-1 transition-all"
+                    title="Logout"
+                  >
+                    <LogOut className="w-3 h-3" />
+                    <span className="hidden sm:inline">logout</span>
+                  </button>
+                </form>
               </>
             ) : (
               <Link
