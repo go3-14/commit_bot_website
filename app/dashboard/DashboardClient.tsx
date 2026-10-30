@@ -26,6 +26,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import ContributionGraph from '@/components/graph/ContributionGraph';
+import YearInsights from '@/components/graph/YearInsights';
 import ToolPanel from '@/components/tools/ToolPanel';
 import CommitQueue from '@/components/execution/CommitQueue';
 import ExecutionModal from '@/components/execution/ExecutionModal';
@@ -239,6 +240,8 @@ export default function DashboardClient({
         <ToolPanel />
 
         <CommitQueue onExecute={handleExecuteClick} />
+
+        {user && <YearInsights data={graphData} year={year} />}
 
         {user && isExecutionModalOpen && (
           <ExecutionModal
