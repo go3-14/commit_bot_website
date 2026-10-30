@@ -18,140 +18,64 @@ export default function ToolPanel() {
   const { activeTool, setActiveTool, intensity, setIntensity } = useGraphStore();
   const [activeSheet, setActiveSheet] = useState<'pattern' | 'image' | 'fill' | 'random' | null>(null);
 
-  const isPaintActive = (n: number) => activeTool === 'paint' && intensity === n;
-  const isEraseActive = activeTool === 'erase';
-
   const selectPaint = (n: number) => {
     setActiveTool('paint');
     setIntensity(n);
     setActiveSheet(null);
   };
 
-  const selectErase = () => {
-    setActiveTool('erase');
-    setActiveSheet(null);
-  };
+  const generators: Array<{ id: 'pattern' | 'image' | 'fill' | 'random'; label: string }> = [
+    { id: 'pattern', label: 'text & shapes' },
+    { id: 'image', label: 'image' },
+    { id: 'fill', label: 'fill year' },
+    { id: 'random', label: 'random' },
+  ];
+
+  const base = 'px-3 py-1.5 rounded-md text-xs transition-colors';
+  const idle = 'text-dim hover:text-fg';
+  const on = 'bg-mint-strong text-canvas font-bold';
 
   return (
-    <div className="w-full flex flex-col gap-2 font-mono select-none">
-      <div className="flex items-center gap-1.5 text-xs text-dim px-1">
-        <span>▼ tools</span>
-      </div>
-
-      {/* Segmented Filter Pills matching Monkeytype */}
-      <div className="w-full flex flex-wrap items-center gap-1.5 bg-panel border border-line p-2 rounded-xl">
+    <div className="w-full flex flex-wrap items-center gap-3 bg-panel border border-line p-2 rounded-xl select-none">
+      <div className="flex items-center gap-1 rounded-lg bg-canvas p-1" role="group" aria-label="paint intensity">
+        {[1, 3, 5, 10].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => selectPaint(n)}
+            aria-pressed={activeTool === 'paint' && intensity === n}
+            className={`${base} ${activeTool === 'paint' && intensity === n ? on : idle}`}
+          >
+            {n}
+          </button>
+        ))}
         <button
           type="button"
-          onClick={() => selectPaint(1)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            isPaintActive(1)
-              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          paint (1)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => selectPaint(3)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            isPaintActive(3)
-              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          paint (3)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => selectPaint(5)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            isPaintActive(5)
-              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          paint (5)
-        </button>
-
-        <button
-          type="button"
-          onClick={() => selectPaint(10)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            isPaintActive(10)
-              ? 'bg-mint-strong text-canvas font-bold shadow-sm'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          paint (10)
-        </button>
-
-        <button
-          type="button"
-          onClick={selectErase}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            isEraseActive
-              ? 'bg-danger text-white font-bold shadow-sm'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
+          onClick={() => {
+            setActiveTool('erase');
+            setActiveSheet(null);
+          }}
+          aria-pressed={activeTool === 'erase'}
+          className={`${base} ${activeTool === 'erase' ? 'bg-danger text-white font-bold' : idle}`}
         >
           erase
         </button>
-
-        <div className="h-4 w-px bg-line mx-1 hidden sm:block" />
-
-        <button
-          type="button"
-          onClick={() => setActiveSheet('pattern')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            activeSheet === 'pattern'
-              ? 'bg-mint-strong text-canvas font-bold'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          text & shapes
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSheet('image')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            activeSheet === 'image'
-              ? 'bg-mint-strong text-canvas font-bold'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          image
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSheet('fill')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            activeSheet === 'fill'
-              ? 'bg-mint-strong text-canvas font-bold'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          fill year
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSheet('random')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-            activeSheet === 'random'
-              ? 'bg-mint-strong text-canvas font-bold'
-              : 'bg-canvas text-dim border border-line hover:text-fg hover:border-line-strong'
-          }`}
-        >
-          random
-        </button>
       </div>
 
-      {/* Slide-In Side Sheets for Generators */}
+      <div className="flex flex-wrap items-center gap-1">
+        {generators.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            onClick={() => setActiveSheet(g.id)}
+            className={`${base} ${activeSheet === g.id ? on : idle}`}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Generators open in a side sheet */}
       <Sheet open={activeSheet !== null} onOpenChange={(open) => !open && setActiveSheet(null)}>
         <SheetContent
           side="right"
@@ -164,7 +88,7 @@ export default function ToolPanel() {
                   text & shapes
                 </SheetTitle>
                 <SheetDescription className="text-xs text-dim font-mono">
-                  convert text with 5x7 font or stamps to commits
+                  Turn text or a shape into painted days.
                 </SheetDescription>
               </SheetHeader>
               <PatternTool />
@@ -175,10 +99,10 @@ export default function ToolPanel() {
             <>
               <SheetHeader className="mb-4">
                 <SheetTitle className="text-mint text-sm font-mono">
-                  image converter
+                  image
                 </SheetTitle>
                 <SheetDescription className="text-xs text-dim font-mono">
-                  convert pixel data to 7 row commit grid
+                  Turn an image into painted days.
                 </SheetDescription>
               </SheetHeader>
               <ImageTool />
@@ -192,7 +116,7 @@ export default function ToolPanel() {
                   fill year
                 </SheetTitle>
                 <SheetDescription className="text-xs text-dim font-mono">
-                  fill full year with randomized daily activity
+                  Fill the year with random daily commits.
                 </SheetDescription>
               </SheetHeader>
               <FillTool />
@@ -203,10 +127,10 @@ export default function ToolPanel() {
             <>
               <SheetHeader className="mb-4">
                 <SheetTitle className="text-mint text-sm font-mono">
-                  random scatter
+                  random
                 </SheetTitle>
                 <SheetDescription className="text-xs text-dim font-mono">
-                  scatter commits randomly across dates
+                  Spread a number of commits over random days.
                 </SheetDescription>
               </SheetHeader>
               <RandomTool />
