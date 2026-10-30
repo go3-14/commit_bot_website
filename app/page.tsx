@@ -28,6 +28,16 @@ function generateStarterGraph(year: number): ContributionDay[][] {
   return weeks;
 }
 
+async function loadUserData(token: string, year: number) {
+  const [user, email, initialGraph, initialRepos] = await Promise.all([
+    fetchUser(token),
+    fetchPrimaryEmail(token),
+    fetchContributionGraph(token, year),
+    fetchOwnedRepos(token),
+  ]);
+  return { user, email, initialGraph, initialRepos };
+}
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -39,27 +49,24 @@ export default async function HomePage({
   const currentYear = new Date().getFullYear();
 
   if (token) {
+    let data: Awaited<ReturnType<typeof loadUserData>> | null = null;
     try {
-      const [user, email, initialGraph, initialRepos] = await Promise.all([
-        fetchUser(token),
-        fetchPrimaryEmail(token),
-        fetchContributionGraph(token, currentYear),
-        fetchOwnedRepos(token),
-      ]);
+      data = await loadUserData(token, currentYear);
+    } catch (err: unknown) {
+      console.error('Session token invalid or expired:', err);
+    }
 
+    if (data) {
       return (
         <DashboardClient
-          user={user}
-          email={email}
-          initialGraph={initialGraph}
-          initialRepos={initialRepos}
+          user={data.user}
+          email={data.email}
+          initialGraph={data.initialGraph}
+          initialRepos={data.initialRepos}
           currentYear={currentYear}
           authError={authError}
         />
       );
-    } catch (err: unknown) {
-      console.error('Session token invalid or expired:', err);
-      // Fall through to guest/starter canvas mode
     }
   }
 
