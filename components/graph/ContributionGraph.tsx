@@ -5,7 +5,7 @@ import GraphMonthLabels from './GraphMonthLabels';
 import GraphDayLabels from './GraphDayLabels';
 import GraphCell from './GraphCell';
 import { ContributionDay } from '@/types';
-import { yearGridToDate } from '@/lib/core/grid-mapper';
+import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
 import { useGraphStore } from '@/store/graph-store';
 import {
   Select,
@@ -166,7 +166,7 @@ export default function ContributionGraph({
                       const dayData = realData?.[week]?.[day];
                       const realCount = dayData?.contributionCount ?? 0;
                       const dateStr =
-                        dayData?.date || yearGridToDate(week, day, year).toISOString().split('T')[0];
+                        dayData?.date || toDateString(yearGridToDate(week, day, year));
                       const key = `${week}-${day}`;
                       const queuedCount = queue[key] ?? 0;
                       const customColor = dayData?.color;

@@ -63,13 +63,14 @@ export default function GraphCell({
   const baseColor = getLevelColor(realCount);
 
   // Formatted date string in lowercase
-  const dateObj = dateStr ? new Date(dateStr) : null;
+  const dateObj = dateStr ? new Date(`${dateStr}T00:00:00Z`) : null;
   const formattedDate = dateObj
     ? dateObj.toLocaleDateString('en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric',
         year: 'numeric',
+        timeZone: 'UTC',
       }).toLowerCase()
     : `week ${week + 1}, day ${day}`;
 

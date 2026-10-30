@@ -26,7 +26,7 @@ export default function FillTool() {
       for (let day = 0; day < 7; day++) {
         const date = yearGridToDate(week, day, year);
         // Only fill days that fall within the target year
-        if (date.getFullYear() !== year) continue;
+        if (date.getUTCFullYear() !== year) continue;
 
         // day 0 = Sunday, day 6 = Saturday
         if ((weekdaysOnly || skipWeekends) && (day === 0 || day === 6)) {

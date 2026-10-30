@@ -6,7 +6,7 @@ import {
   fetchContributionGraph, 
   fetchOwnedRepos 
 } from '@/lib/github-api';
-import { yearGridToDate } from '@/lib/core/grid-mapper';
+import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
 import { ContributionDay } from '@/types';
 
 function generateStarterGraph(year: number): ContributionDay[][] {
@@ -16,7 +16,7 @@ function generateStarterGraph(year: number): ContributionDay[][] {
     for (let d = 0; d < 7; d++) {
       const date = yearGridToDate(w, d, year);
       days.push({
-        date: date.toISOString().split('T')[0],
+        date: toDateString(date),
         contributionCount: 0,
         color: '#161b22',
         weekday: d,

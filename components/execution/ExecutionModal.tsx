@@ -95,13 +95,7 @@ export default function ExecutionModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan,
-          config: {
-            owner: selectedRepo.owner,
-            repo: selectedRepo.repo,
-            branch: selectedRepo.branch,
-            authorName: userName,
-            authorEmail: userEmail,
-          },
+          config: { repo: selectedRepo.repo },
         }),
         signal: controller.signal,
       });

@@ -110,7 +110,7 @@ export default function CommitQueue({ onExecute, disabled = false }: CommitQueue
             {plan.map((item, idx) => (
               <div key={idx} className="flex items-center justify-between py-1 px-2 text-xs font-mono">
                 <span className="text-[#607b62]">
-                  {item.date.toISOString().split('T')[0]} ({item.date.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()})
+                  {item.date} ({new Date(`${item.date}T00:00:00Z`).toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }).toLowerCase()})
                 </span>
                 <span className="px-2 py-0.5 rounded bg-[#182319] border border-[#263626] text-[#8cd48f] font-mono text-[11px]">
                   {item.count} commit{item.count > 1 ? 's' : ''}

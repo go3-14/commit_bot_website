@@ -17,8 +17,8 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
 
   for (let week = 0; week < 53; week++) {
     const date = yearGridToDate(week, 3, year);
-    if (date.getFullYear() === year) {
-      const month = date.getMonth();
+    if (date.getUTCFullYear() === year) {
+      const month = date.getUTCMonth();
       if (month !== lastMonth) {
         monthLabels.push({ weekIndex: week, name: MONTH_NAMES[month] });
         lastMonth = month;

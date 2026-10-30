@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { ToolType, CommitPlanEntry } from '@/types';
-import { yearGridToDate } from '@/lib/core/grid-mapper';
+import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
 
 interface GraphStore {
   // Current active tool
@@ -106,12 +106,12 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
         const week = parseInt(wStr, 10);
         const day = parseInt(dStr, 10);
         const date = yearGridToDate(week, day, year);
-        plan.push({ date, count });
+        plan.push({ date: toDateString(date), count });
       }
     }
 
     // Sort by date ascending
-    return plan.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return plan.sort((a, b) => a.date.localeCompare(b.date));
   },
 
   intensity: 3,

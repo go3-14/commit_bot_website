@@ -25,7 +25,7 @@ export default function RandomTool() {
     for (let week = 0; week < 53; week++) {
       for (let day = 0; day < 7; day++) {
         const date = yearGridToDate(week, day, year);
-        if (date.getFullYear() !== year) continue;
+        if (date.getUTCFullYear() !== year) continue;
         if (weekdaysOnly && (day === 0 || day === 6)) continue;
         validCells.push({ week, day });
       }
