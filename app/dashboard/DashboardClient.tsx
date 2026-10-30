@@ -224,7 +224,7 @@ export default function DashboardClient({
           </div>
           <div className="flex items-baseline gap-2">
             <dd className="text-2xl font-bold text-fg tabular-nums">{totalDates}</dd>
-            <dt className="text-xs text-dim">days</dt>
+            <dt className="text-xs text-dim">{totalDates === 1 ? "day" : "days"}</dt>
           </div>
           <div className="flex items-baseline gap-2">
             <dd className="text-2xl font-bold text-fg tabular-nums">{estimatedApiCalls}</dd>
