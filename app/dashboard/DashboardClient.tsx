@@ -199,7 +199,7 @@ export default function DashboardClient({
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-4">
+      <main className="flex-1 max-w-6xl mx-auto px-4 py-8 w-full flex flex-col justify-center gap-5">
         <div className="flex md:hidden">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
