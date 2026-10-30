@@ -86,7 +86,7 @@ export default function DashboardClient({
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
 
   // Computed queue stats for Monkeytype top stats card
-  const plan = getCommitPlan(year);
+  const plan = getCommitPlan();
   const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
   const totalDates = plan.length;
   const estimatedApiCalls = totalCommits > 0 ? totalCommits * 4 + 1 : 0;

@@ -52,13 +52,15 @@ export default function ContributionGraph({
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [isDragging, endDrag]);
 
+  const cellKey = (week: number, day: number) => toDateString(yearGridToDate(week, day, year));
+
   // Handle cell mouse down
   const handleCellMouseDown = (week: number, day: number) => {
     setDragMoved(false);
 
     if (activeTool === 'erase') {
       startDrag('remove');
-      clearCell(week, day);
+      clearCell(cellKey(week, day));
       setActivePopoverKey(null);
     } else {
       startDrag('add');
@@ -75,16 +77,16 @@ export default function ContributionGraph({
     setActivePopoverKey(null);
 
     if (dragAction === 'remove' || activeTool === 'erase') {
-      clearCell(week, day);
+      clearCell(cellKey(week, day));
     } else if (dragAction === 'add') {
-      setCell(week, day, intensity);
+      setCell(cellKey(week, day), intensity);
     }
   };
 
   // Right-click quick erase
   const handleCellContextMenu = (e: React.MouseEvent, week: number, day: number) => {
     e.preventDefault();
-    clearCell(week, day);
+    clearCell(cellKey(week, day));
     setActivePopoverKey(null);
   };
 
@@ -168,7 +170,8 @@ export default function ContributionGraph({
                       const dateStr =
                         dayData?.date || toDateString(yearGridToDate(week, day, year));
                       const key = `${week}-${day}`;
-                      const queuedCount = queue[key] ?? 0;
+                      const queuedCount = queue[cellKey(week, day)] ?? 0;
+                      
                       const customColor = dayData?.color;
                       const isPopoverOpen = activePopoverKey === key;
 
@@ -189,9 +192,9 @@ export default function ContributionGraph({
                           }}
                           onSetCommitCount={(count) => {
                             if (count <= 0) {
-                              clearCell(week, day);
+                              clearCell(cellKey(week, day));
                             } else {
-                              setCell(week, day, count);
+                              setCell(cellKey(week, day), count);
                             }
                           }}
                           onCellMouseDown={handleCellMouseDown}

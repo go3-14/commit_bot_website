@@ -21,7 +21,7 @@ export default function CommitQueue({ onExecute, disabled = false }: CommitQueue
   const { clearQueue, year, getCommitPlan, selectedRepo } = useGraphStore();
   const [showPreview, setShowPreview] = useState(false);
 
-  const plan = getCommitPlan(year);
+  const plan = getCommitPlan();
   const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
   const totalDates = plan.length;
   const estimatedApiCalls = totalCommits * 4 + 1;

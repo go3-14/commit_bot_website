@@ -72,7 +72,7 @@ export default function ExecutionModal({
   };
 
   const runExecution = async () => {
-    const plan = getCommitPlan(year);
+    const plan = getCommitPlan();
     const planTotal = plan.reduce((sum, p) => sum + p.count, 0);
 
     if (planTotal === 0 || !selectedRepo) {

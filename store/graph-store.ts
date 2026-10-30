@@ -1,24 +1,25 @@
 import { create } from 'zustand';
 import { ToolType, CommitPlanEntry } from '@/types';
 import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
+import { isPaintableDate } from '@/lib/core/paintable';
 
 interface GraphStore {
   // Current active tool
   activeTool: ToolType;
   setActiveTool: (tool: ToolType) => void;
 
-  // Queued commits: key = "week-day", value = commit count
+  // Queued commits: key = UTC date "YYYY-MM-DD", value = commit count
   queue: Record<string, number>;
-  setCell: (week: number, day: number, count: number) => void;
-  toggleCell: (week: number, day: number) => void;
-  clearCell: (week: number, day: number) => void;
+  setCell: (date: string, count: number) => void;
+  clearCell: (date: string) => void;
   clearQueue: () => void;
 
-  // Apply a bulk set of cells (from pattern, image, fill, random)
+  // Apply a bulk set of grid cells (from pattern, image, fill, random) for the selected year.
+  // Cells outside the year or in the future are skipped.
   applyBulkCells: (entries: Array<{ week: number; day: number; count: number }>) => void;
 
-  // Converts the queue to sorted CommitPlanEntry[] for API execution
-  getCommitPlan: (year: number) => CommitPlanEntry[];
+  // Converts the queue to a date-sorted plan for API execution
+  getCommitPlan: () => CommitPlanEntry[];
 
   // Settings
   intensity: number; // commits per painted cell (default 3)
@@ -45,34 +46,22 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
 
   queue: {},
 
-  setCell: (week, day, count) => {
-    const key = `${week}-${day}`;
+  setCell: (date, count) => {
     set((state) => {
       const nextQueue = { ...state.queue };
       if (count <= 0) {
-        delete nextQueue[key];
+        delete nextQueue[date];
       } else {
-        nextQueue[key] = count;
+        nextQueue[date] = count;
       }
       return { queue: nextQueue };
     });
   },
 
-  toggleCell: (week, day) => {
-    const key = `${week}-${day}`;
-    const { queue, intensity } = get();
-    if (queue[key]) {
-      get().clearCell(week, day);
-    } else {
-      get().setCell(week, day, intensity);
-    }
-  },
-
-  clearCell: (week, day) => {
-    const key = `${week}-${day}`;
+  clearCell: (date) => {
     set((state) => {
       const nextQueue = { ...state.queue };
-      delete nextQueue[key];
+      delete nextQueue[date];
       return { queue: nextQueue };
     });
   },
@@ -83,41 +72,32 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
     set((state) => {
       const nextQueue = { ...state.queue };
       for (const entry of entries) {
-        if (entry.week >= 0 && entry.week < 53 && entry.day >= 0 && entry.day < 7) {
-          const key = `${entry.week}-${entry.day}`;
-          if (entry.count > 0) {
-            nextQueue[key] = entry.count;
-          } else {
-            delete nextQueue[key];
-          }
+        if (entry.week < 0 || entry.week > 53 || entry.day < 0 || entry.day > 6) continue;
+        const date = yearGridToDate(entry.week, entry.day, state.year);
+        if (!isPaintableDate(date, state.year)) continue;
+        const key = toDateString(date);
+        if (entry.count > 0) {
+          nextQueue[key] = entry.count;
+        } else {
+          delete nextQueue[key];
         }
       }
       return { queue: nextQueue };
     });
   },
 
-  getCommitPlan: (year) => {
+  getCommitPlan: () => {
     const { queue } = get();
-    const plan: CommitPlanEntry[] = [];
-
-    for (const [key, count] of Object.entries(queue)) {
-      if (count > 0) {
-        const [wStr, dStr] = key.split('-');
-        const week = parseInt(wStr, 10);
-        const day = parseInt(dStr, 10);
-        const date = yearGridToDate(week, day, year);
-        plan.push({ date: toDateString(date), count });
-      }
-    }
-
-    // Sort by date ascending
-    return plan.sort((a, b) => a.date.localeCompare(b.date));
+    return Object.entries(queue)
+      .filter(([, count]) => count > 0)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   },
 
   intensity: 3,
   setIntensity: (intensity) => set({ intensity }),
 
-  year: new Date().getFullYear(),
+  year: new Date().getUTCFullYear(),
   setYear: (year) => set({ year }),
 
   selectedRepo: null,
