@@ -28,6 +28,9 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   timeZone: 'UTC',
 };
 
+// Keeps the centered tooltip from hanging past the first and last columns
+const TOOLTIP_EDGE = 110;
+
 function formatDate(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', DATE_FORMAT).toLowerCase();
 }
@@ -104,9 +107,10 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
     if (!wrapper) return;
     const cell = el.getBoundingClientRect();
     const box = wrapper.getBoundingClientRect();
+    const center = cell.left - box.left + cell.width / 2;
     setHover({
       date: el.dataset.date!,
-      left: cell.left - box.left + cell.width / 2,
+      left: Math.min(Math.max(center, TOOLTIP_EDGE), box.width - TOOLTIP_EDGE),
       top: cell.top - box.top,
     });
   };
