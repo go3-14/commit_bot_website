@@ -25,7 +25,7 @@ export default function GraphMonthLabels({ year }: GraphMonthLabelsProps) {
   return (
     <div className="relative h-5 mt-2 ml-9 text-[11px] text-dim select-none">
       {labels.map((item) => (
-        <span key={item.name} className="absolute" style={{ left: `${item.week * 16}px` }}>
+        <span key={item.name} className="absolute" style={{ left: `calc(${item.week} * (var(--cell) + var(--gap)))` }}>
           {item.name}
         </span>
       ))}

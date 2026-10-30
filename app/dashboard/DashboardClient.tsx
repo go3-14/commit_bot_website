@@ -26,6 +26,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import ContributionGraph from '@/components/graph/ContributionGraph';
+import YearInsights from '@/components/graph/YearInsights';
 import ToolPanel from '@/components/tools/ToolPanel';
 import CommitQueue from '@/components/execution/CommitQueue';
 import ExecutionModal from '@/components/execution/ExecutionModal';
@@ -199,7 +200,7 @@ export default function DashboardClient({
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full flex flex-col gap-4">
+      <main className="flex-1 max-w-6xl mx-auto px-4 py-8 w-full flex flex-col justify-center gap-5">
         <div className="flex md:hidden">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
@@ -239,6 +240,8 @@ export default function DashboardClient({
         <ToolPanel />
 
         <CommitQueue onExecute={handleExecuteClick} />
+
+        {user && <YearInsights data={graphData} year={year} />}
 
         {user && isExecutionModalOpen && (
           <ExecutionModal

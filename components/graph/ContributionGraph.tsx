@@ -28,6 +28,9 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   timeZone: 'UTC',
 };
 
+// Keeps the centered tooltip from hanging past the first and last columns
+const TOOLTIP_EDGE = 150;
+
 function formatDate(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', DATE_FORMAT).toLowerCase();
 }
@@ -104,9 +107,10 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
     if (!wrapper) return;
     const cell = el.getBoundingClientRect();
     const box = wrapper.getBoundingClientRect();
+    const center = cell.left - box.left + cell.width / 2;
     setHover({
       date: el.dataset.date!,
-      left: cell.left - box.left + cell.width / 2,
+      left: Math.min(Math.max(center, TOOLTIP_EDGE), box.width - TOOLTIP_EDGE),
       top: cell.top - box.top,
     });
   };
@@ -175,13 +179,13 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
           </div>
         </div>
 
-        <div className="overflow-x-auto pb-2">
-          <div ref={wrapperRef} className="relative inline-block min-w-[900px]">
+        <div className="overflow-x-auto pt-10 pb-2">
+          <div ref={wrapperRef} className="relative w-max mx-auto">
             <div className="flex items-start">
               <GraphDayLabels />
 
               <div
-                className="heat-grid flex gap-[3px]"
+                className="heat-grid flex"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerLeave={() => setHover(null)}
@@ -191,7 +195,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
                 onKeyDown={handleKeyDown}
               >
                 {cells.map((column, week) => (
-                  <div key={week} className="flex flex-col gap-[3px]">
+                  <div key={week}>
                     {column.map(({ date, disabled }) => {
                       const real = realByDate.get(date) ?? 0;
                       const queued = queue[date] ?? 0;

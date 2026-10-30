@@ -4,9 +4,9 @@ const LABELS = ['', 'mon', '', 'wed', '', 'fri', ''];
 
 export default function GraphDayLabels() {
   return (
-    <div className="flex flex-col gap-[3px] text-[11px] text-dim select-none w-9 shrink-0">
+    <div className="flex flex-col text-[11px] text-dim select-none w-9 shrink-0">
       {LABELS.map((label, i) => (
-        <span key={i} className="h-[13px] leading-[13px]">
+        <span key={i} style={{ height: 'var(--cell)', lineHeight: 'var(--cell)', marginTop: i === 0 ? 0 : 'var(--gap)' }}>
           {label}
         </span>
       ))}
