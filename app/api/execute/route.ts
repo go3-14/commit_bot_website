@@ -1,74 +1,110 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Octokit } from '@octokit/rest';
+import { getSessionFromRequest } from '@/lib/session';
+import { rejectCrossOrigin, requireJson } from '@/lib/security';
 import { executeCommitPlan } from '@/lib/commit-executor';
-import { CommitPlanEntry } from '@/types';
+import { fetchPrimaryEmail, fetchUser } from '@/lib/github-api';
+import { acquireRun, allowRequest, releaseRun } from '@/lib/rate-limit';
+import { isValidRepoName, validatePlan } from '@/lib/plan-validation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get('gh_token')?.value;
+  const blocked = rejectCrossOrigin(req) ?? requireJson(req);
+  if (blocked) return blocked;
 
-  if (!token) {
-    return NextResponse.json(
-      { error: 'Unauthorized: No active GitHub session found' },
-      { status: 401 }
-    );
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
   }
 
-  let body;
+  const userKey = session.login.toLowerCase();
+  if (!allowRequest(`execute:${userKey}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 });
+  }
+
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON request body' }, { status: 400 });
   }
 
-  const { plan: rawPlan, config } = body;
+  const { plan: rawPlan, config } = (body ?? {}) as { plan?: unknown; config?: { repo?: unknown } };
 
-  if (!rawPlan || !Array.isArray(rawPlan) || rawPlan.length === 0) {
-    return NextResponse.json({ error: 'Commit plan is empty or invalid' }, { status: 400 });
+  const validated = validatePlan(rawPlan);
+  if (!validated.ok) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
+  }
+  const plan = validated.value;
+
+  const repoName = config?.repo;
+  if (!isValidRepoName(repoName)) {
+    return NextResponse.json({ error: 'Invalid repository name' }, { status: 400 });
   }
 
-  if (!config || !config.owner || !config.repo || !config.authorEmail) {
-    return NextResponse.json(
-      { error: 'Execution config is incomplete (owner, repo, authorEmail required)' },
-      { status: 400 }
-    );
+  // Everything below is derived from the session and GitHub, never from client input.
+  const owner = session.login;
+  let branch: string;
+  let authorName: string;
+  let authorEmail: string;
+  try {
+    const octokit = new Octokit({ auth: session.token });
+    const { data: repo } = await octokit.repos.get({ owner, repo: repoName });
+
+    if (repo.owner.login.toLowerCase() !== owner.toLowerCase() || repo.fork || repo.archived) {
+      return NextResponse.json(
+        { error: 'Repository must be an owned, non-fork, non-archived repository' },
+        { status: 400 }
+      );
+    }
+    branch = repo.default_branch;
+
+    const [user, email] = await Promise.all([fetchUser(session.token), fetchPrimaryEmail(session.token)]);
+    authorName = user.name || user.login;
+    authorEmail = email || `${user.login}@users.noreply.github.com`;
+  } catch (err: unknown) {
+    console.error('Execution preflight failed:', err);
+    return NextResponse.json({ error: 'Could not access that repository' }, { status: 400 });
   }
 
-  // Convert rawPlan date strings into Date objects
-  const plan: CommitPlanEntry[] = rawPlan.map((p) => ({
-    date: new Date(p.date),
-    count: Number(p.count) || 1,
-  }));
+  if (!acquireRun(userKey)) {
+    return NextResponse.json({ error: 'A run is already in progress' }, { status: 409 });
+  }
 
   const encoder = new TextEncoder();
+  const totalCommits = plan.reduce((sum, p) => sum + p.count, 0);
 
   const stream = new ReadableStream({
     async start(controller) {
+      const send = (payload: object) => {
+        try {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+        } catch {
+          // client disconnected
+        }
+      };
+
       try {
         await executeCommitPlan(
           plan,
-          {
-            ...config,
-            token,
-            branch: config.branch || 'main',
-          },
-          (progress) => {
-            const eventData = `data: ${JSON.stringify(progress)}\n\n`;
-            controller.enqueue(encoder.encode(eventData));
-          }
+          { token: session.token, owner, repo: repoName, branch, authorName, authorEmail },
+          (progress) => send(progress),
+          req.signal
         );
-
-        // Send completion event
-        const doneData = `data: ${JSON.stringify({ done: true, total: plan.reduce((s, p) => s + p.count, 0) })}\n\n`;
-        controller.enqueue(encoder.encode(doneData));
-        controller.close();
+        send({ done: true, total: totalCommits });
       } catch (err: unknown) {
         console.error('Execution stream error:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Unknown execution failure';
-        const errorData = `data: ${JSON.stringify({ error: errorMessage })}\n\n`;
-        controller.enqueue(encoder.encode(errorData));
-        controller.close();
+        send({ error: 'Execution failed. Some commits may already have been pushed.' });
+      } finally {
+        releaseRun(userKey);
+        try {
+          controller.close();
+        } catch {
+          // already closed
+        }
       }
     },
   });
@@ -77,7 +113,7 @@ export async function POST(req: NextRequest) {
     headers: {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
+      'X-Content-Type-Options': 'nosniff',
     },
   });
 }

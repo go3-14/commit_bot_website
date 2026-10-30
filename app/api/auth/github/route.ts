@@ -1,25 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { getBaseUrl, getGithubCredentials } from '@/lib/env';
+import { createTransaction, setTransactionCookie } from '@/lib/oauth';
 
-export async function GET(req: NextRequest) {
-  const clientId = process.env.GITHUB_CLIENT_ID;
+export async function GET() {
+  const baseUrl = getBaseUrl();
 
-  if (!clientId) {
-    return NextResponse.json(
-      { error: 'GITHUB_CLIENT_ID is not configured in environment variables' },
-      { status: 500 }
-    );
+  let clientId: string;
+  try {
+    clientId = getGithubCredentials().clientId;
+  } catch {
+    return NextResponse.redirect(new URL('/?error=server_configuration_error', baseUrl));
   }
 
-  // Determine base URL dynamically or from env
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.nextUrl.origin;
-  const redirectUri = `${baseUrl}/api/auth/github/callback`;
+  const { state, verifier, challenge } = createTransaction();
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: redirectUri,
+    redirect_uri: `${baseUrl}/api/auth/github/callback`,
     scope: 'repo user:email',
-    allow_signup: 'true',
+    state,
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    allow_signup: 'false',
   });
 
-  return NextResponse.redirect(`https://github.com/login/oauth/authorize?${params.toString()}`);
+  const response = NextResponse.redirect(
+    `https://github.com/login/oauth/authorize?${params.toString()}`
+  );
+  setTransactionCookie(response, state, verifier);
+  return response;
 }

@@ -1,84 +1,58 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Play, 
-  Trash2, 
-  ChevronDown, 
-  ChevronUp, 
-  Clock, 
-  AlertTriangle 
-} from 'lucide-react';
+import { Play, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGraphStore } from '@/store/graph-store';
+import { MAX_COMMITS_PER_RUN } from '@/lib/plan-validation';
 
 interface CommitQueueProps {
   onExecute: () => void;
-  disabled?: boolean;
 }
 
-export default function CommitQueue({ onExecute, disabled = false }: CommitQueueProps) {
-  const { clearQueue, year, getCommitPlan, selectedRepo } = useGraphStore();
-  const [showPreview, setShowPreview] = useState(false);
+export default function CommitQueue({ onExecute }: CommitQueueProps) {
+  const { clearQueue, getCommitPlan, selectedRepo } = useGraphStore();
+  const [showList, setShowList] = useState(false);
 
-  const plan = getCommitPlan(year);
+  const plan = getCommitPlan();
   const totalCommits = plan.reduce((sum, item) => sum + item.count, 0);
-  const totalDates = plan.length;
-  const estimatedApiCalls = totalCommits * 4 + 1;
-  const isHighApiUsage = estimatedApiCalls > 3500;
+  const overLimit = totalCommits > MAX_COMMITS_PER_RUN;
+
+  let hint: string | null = null;
+  if (overLimit) hint = `Limit is ${MAX_COMMITS_PER_RUN} commits per run. Remove some days.`;
+  else if (totalCommits > 0 && !selectedRepo) hint = 'Select a repository to push to.';
 
   return (
-    <div className="w-full font-mono select-none">
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-[#263626] bg-[#182319]">
-        {/* Left Stats */}
-        <div className="flex flex-wrap items-center gap-3">
+    <div className="w-full select-none">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-line bg-panel">
+        <div className="text-xs">
           {totalCommits > 0 ? (
-            <>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
-                <span className="text-xs text-[#dbead9]">
-                  queued: <strong className="text-[#8cd48f]">{totalCommits}</strong> commits across{' '}
-                  <strong className="text-[#8cd48f]">{totalDates}</strong> dates
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1 text-[11px] text-[#607b62] bg-[#111810] px-2 py-0.5 rounded border border-[#263626]">
-                <Clock className="w-3 h-3 text-[#607b62]" />
-                <span>~{estimatedApiCalls} calls</span>
-              </div>
-
-              {isHighApiUsage && (
-                <div className="flex items-center gap-1 text-[11px] text-[#f59e0b] bg-[#111810] border border-[#f59e0b]/40 px-2 py-0.5 rounded">
-                  <AlertTriangle className="w-3 h-3" />
-                  <span>high call volume</span>
-                </div>
-              )}
-            </>
+            <span className="text-fg">
+              <strong className="text-mint">{totalCommits}</strong> commits on{' '}
+              <strong className="text-mint">{plan.length}</strong> days
+              {hint && <span className={overLimit ? 'text-danger ml-3' : 'text-dim ml-3'}>{hint}</span>}
+            </span>
           ) : (
-            <div className="flex items-center gap-2 text-xs text-[#607b62]">
-              <span className="w-2 h-2 rounded-full bg-[#263626]" />
-              <span>0 commits queued. click or drag on heatmap to paint.</span>
-            </div>
+            <span className="text-dim">Nothing queued. Click or drag on the graph to paint days.</span>
           )}
         </div>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-2">
           {totalCommits > 0 && (
             <>
               <button
                 type="button"
-                onClick={() => setShowPreview(!showPreview)}
-                className="text-xs text-[#607b62] hover:text-[#dbead9] px-2 py-1 rounded bg-[#111810] border border-[#263626] flex items-center gap-1 transition-all"
+                onClick={() => setShowList(!showList)}
+                className="text-xs text-dim hover:text-fg px-2.5 py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
               >
-                <span>{showPreview ? 'hide list' : 'view list'}</span>
-                {showPreview ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                <span>{showList ? 'hide days' : 'show days'}</span>
+                {showList ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
 
               <button
                 type="button"
                 onClick={clearQueue}
-                className="text-xs text-[#607b62] hover:text-red-400 px-2.5 py-1 rounded bg-[#111810] border border-[#263626] flex items-center gap-1 transition-all"
+                className="text-xs text-dim hover:text-danger px-2.5 py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
                 <span>clear</span>
@@ -90,34 +64,28 @@ export default function CommitQueue({ onExecute, disabled = false }: CommitQueue
             type="button"
             size="sm"
             onClick={onExecute}
-            disabled={disabled || totalCommits === 0 || !selectedRepo}
-            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] font-bold text-xs h-8 px-4 rounded-lg gap-1.5 shadow-sm disabled:opacity-30 disabled:bg-[#263626] disabled:text-[#607b62]"
+            disabled={totalCommits === 0 || overLimit || !selectedRepo}
+            className="bg-mint-strong hover:bg-mint text-canvas font-bold text-xs h-8 px-4 rounded-lg gap-1.5 disabled:opacity-40 disabled:bg-line disabled:text-dim"
           >
             <Play className="w-3 h-3 fill-current" />
-            <span>execute commits</span>
+            <span>push commits</span>
           </Button>
         </div>
       </div>
 
-      {/* Expandable Timeline List */}
-      {showPreview && totalCommits > 0 && (
-        <div className="mt-2 p-3 rounded-xl border border-[#263626] bg-[#182319] animate-in fade-in">
-          <div className="text-xs text-[#607b62] mb-2 flex items-center justify-between">
-            <span>commit queue ({plan.length} dates)</span>
-            <span>chronological</span>
-          </div>
-          <div className="max-h-44 overflow-y-auto rounded-lg border border-[#263626] bg-[#111810] p-2 divide-y divide-[#263626]/60">
-            {plan.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between py-1 px-2 text-xs font-mono">
-                <span className="text-[#607b62]">
-                  {item.date.toISOString().split('T')[0]} ({item.date.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()})
-                </span>
-                <span className="px-2 py-0.5 rounded bg-[#182319] border border-[#263626] text-[#8cd48f] font-mono text-[11px]">
-                  {item.count} commit{item.count > 1 ? 's' : ''}
-                </span>
-              </div>
-            ))}
-          </div>
+      {showList && totalCommits > 0 && (
+        <div className="mt-2 max-h-44 overflow-y-auto rounded-xl border border-line bg-panel p-2 divide-y divide-line">
+          {plan.map((item) => (
+            <div key={item.date} className="flex items-center justify-between py-1 px-2 text-xs">
+              <span className="text-dim">
+                {item.date}{' '}
+                {new Date(`${item.date}T00:00:00Z`)
+                  .toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })
+                  .toLowerCase()}
+              </span>
+              <span className="text-mint">{item.count}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>

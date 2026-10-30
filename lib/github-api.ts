@@ -141,37 +141,3 @@ export async function fetchContributionGraph(
     );
   }
 }
-
-// Get the current HEAD SHA of a branch
-export async function getBranchHead(
-  token: string,
-  owner: string,
-  repo: string,
-  branch: string
-): Promise<string> {
-  const octokit = new Octokit({ auth: token });
-  const { data } = await octokit.git.getRef({
-    owner,
-    repo,
-    ref: `heads/${branch}`,
-  });
-  return data.object.sha;
-}
-
-// Update branch reference (force push)
-export async function updateBranchRef(
-  token: string,
-  owner: string,
-  repo: string,
-  branch: string,
-  sha: string
-): Promise<void> {
-  const octokit = new Octokit({ auth: token });
-  await octokit.git.updateRef({
-    owner,
-    repo,
-    ref: `heads/${branch}`,
-    sha,
-    force: true,
-  });
-}

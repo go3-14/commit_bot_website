@@ -21,7 +21,7 @@ export interface RepoInfo {
 }
 
 export interface CommitPlanEntry {
-  date: Date;
+  date: string; // UTC calendar date "YYYY-MM-DD"
   count: number;
 }
 

@@ -75,19 +75,25 @@ export function dateToGrid(
  * @returns The Sunday that starts the year's graph
  */
 export function getYearGraphStartDate(year: number): Date {
-  const jan1 = new Date(year, 0, 1);
-  return startOfWeek(jan1, { weekStartsOn: 0 });
+  const jan1 = Date.UTC(year, 0, 1);
+  const dayOfWeek = new Date(jan1).getUTCDay();
+  return new Date(jan1 - dayOfWeek * 86_400_000);
 }
 
 /**
- * Convert a (week, day) coordinate to a date for a specific year's graph.
+ * Convert a (week, day) coordinate to a UTC calendar date for a specific year's graph.
  *
  * @param week - Column index
  * @param day  - Row index (0 = Sunday, 6 = Saturday)
  * @param year - The target year
- * @returns The calendar date
+ * @returns Date at 00:00 UTC of that calendar day
  */
 export function yearGridToDate(week: number, day: number, year: number): Date {
-  const yearStart = getYearGraphStartDate(year);
-  return addDays(addWeeks(yearStart, week), day);
+  const start = getYearGraphStartDate(year).getTime();
+  return new Date(start + (week * 7 + day) * 86_400_000);
+}
+
+/** "YYYY-MM-DD" for a UTC calendar date. */
+export function toDateString(date: Date): string {
+  return date.toISOString().slice(0, 10);
 }

@@ -1,12 +1,12 @@
-import { cookies } from 'next/headers';
+import { getSession } from '@/lib/session';
+import { authErrorMessage } from '@/lib/auth-errors';
 import DashboardClient from './dashboard/DashboardClient';
 import { 
   fetchUser, 
-  fetchPrimaryEmail, 
   fetchContributionGraph, 
   fetchOwnedRepos 
 } from '@/lib/github-api';
-import { yearGridToDate } from '@/lib/core/grid-mapper';
+import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
 import { ContributionDay } from '@/types';
 
 function generateStarterGraph(year: number): ContributionDay[][] {
@@ -16,7 +16,7 @@ function generateStarterGraph(year: number): ContributionDay[][] {
     for (let d = 0; d < 7; d++) {
       const date = yearGridToDate(w, d, year);
       days.push({
-        date: date.toISOString().split('T')[0],
+        date: toDateString(date),
         contributionCount: 0,
         color: '#161b22',
         weekday: d,
@@ -27,32 +27,43 @@ function generateStarterGraph(year: number): ContributionDay[][] {
   return weeks;
 }
 
-export default async function HomePage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('gh_token')?.value;
+async function loadUserData(token: string, year: number) {
+  const [user, initialGraph, initialRepos] = await Promise.all([
+    fetchUser(token),
+    fetchContributionGraph(token, year),
+    fetchOwnedRepos(token),
+  ]);
+  return { user, initialGraph, initialRepos };
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string | string[] }>;
+}) {
+  const authError = authErrorMessage((await searchParams).error);
+  const session = await getSession();
+  const token = session?.token;
   const currentYear = new Date().getFullYear();
 
   if (token) {
+    let data: Awaited<ReturnType<typeof loadUserData>> | null = null;
     try {
-      const [user, email, initialGraph, initialRepos] = await Promise.all([
-        fetchUser(token),
-        fetchPrimaryEmail(token),
-        fetchContributionGraph(token, currentYear),
-        fetchOwnedRepos(token),
-      ]);
-
-      return (
-        <DashboardClient
-          user={user}
-          email={email}
-          initialGraph={initialGraph}
-          initialRepos={initialRepos}
-          currentYear={currentYear}
-        />
-      );
+      data = await loadUserData(token, currentYear);
     } catch (err: unknown) {
       console.error('Session token invalid or expired:', err);
-      // Fall through to guest/starter canvas mode
+    }
+
+    if (data) {
+      return (
+        <DashboardClient
+          user={data.user}
+          initialGraph={data.initialGraph}
+          initialRepos={data.initialRepos}
+          currentYear={currentYear}
+          authError={authError}
+        />
+      );
     }
   }
 
@@ -62,10 +73,10 @@ export default async function HomePage() {
   return (
     <DashboardClient
       user={null}
-      email={null}
       initialGraph={starterGraph}
       initialRepos={[]}
       currentYear={currentYear}
+      authError={authError}
     />
   );
 }

@@ -1,202 +1,208 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import GraphMonthLabels from './GraphMonthLabels';
 import GraphDayLabels from './GraphDayLabels';
-import GraphCell from './GraphCell';
+import GraphCell, { LEVEL_COLORS } from './GraphCell';
 import { ContributionDay } from '@/types';
-import { yearGridToDate } from '@/lib/core/grid-mapper';
+import { yearGridToDate, toDateString } from '@/lib/core/grid-mapper';
+import { isPaintableDate } from '@/lib/core/paintable';
 import { useGraphStore } from '@/store/graph-store';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface ContributionGraphProps {
   realData: ContributionDay[][] | null;
   year: number;
-  onYearChange?: (year: number) => void;
 }
 
-export default function ContributionGraph({
-  realData,
-  year,
-  onYearChange,
-}: ContributionGraphProps) {
-  const {
-    queue,
-    activeTool,
-    intensity,
-    setCell,
-    clearCell,
-    isDragging,
-    dragAction,
-    startDrag,
-    endDrag,
-  } = useGraphStore();
+interface HoverState {
+  date: string;
+  left: number;
+  top: number;
+}
 
-  const [activePopoverKey, setActivePopoverKey] = useState<string | null>(null);
-  const [dragMoved, setDragMoved] = useState<boolean>(false);
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+};
 
-  // Clean up drag state on global mouseup
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging) {
-        endDrag();
+function formatDate(date: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', DATE_FORMAT).toLowerCase();
+}
+
+export default function ContributionGraph({ realData, year }: ContributionGraphProps) {
+  const queue = useGraphStore((s) => s.queue);
+  const activeTool = useGraphStore((s) => s.activeTool);
+  const intensity = useGraphStore((s) => s.intensity);
+  const setCell = useGraphStore((s) => s.setCell);
+  const clearCell = useGraphStore((s) => s.clearCell);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<'add' | 'remove' | null>(null);
+  const [hover, setHover] = useState<HoverState | null>(null);
+
+  // The first and last weeks of a GitHub year are partial, so look contributions up by date, not by position
+  const realByDate = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const week of realData ?? []) {
+      for (const day of week) {
+        if (day.date) map.set(day.date, day.contributionCount);
       }
-    };
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, [isDragging, endDrag]);
-
-  // Handle cell mouse down
-  const handleCellMouseDown = (week: number, day: number) => {
-    setDragMoved(false);
-
-    if (activeTool === 'erase') {
-      startDrag('remove');
-      clearCell(week, day);
-      setActivePopoverKey(null);
-    } else {
-      startDrag('add');
-      const key = `${week}-${day}`;
-      setActivePopoverKey((prev) => (prev === key ? null : key));
     }
-  };
-
-  // Handle dragging over cells
-  const handleCellMouseEnter = (week: number, day: number) => {
-    if (!isDragging) return;
-
-    setDragMoved(true);
-    setActivePopoverKey(null);
-
-    if (dragAction === 'remove' || activeTool === 'erase') {
-      clearCell(week, day);
-    } else if (dragAction === 'add') {
-      setCell(week, day, intensity);
-    }
-  };
-
-  // Right-click quick erase
-  const handleCellContextMenu = (e: React.MouseEvent, week: number, day: number) => {
-    e.preventDefault();
-    clearCell(week, day);
-    setActivePopoverKey(null);
-  };
-
-  // Compute total real contributions
-  const totalContributions = React.useMemo(() => {
-    if (!realData) return 0;
-    return realData.reduce(
-      (sum, week) => sum + week.reduce((wSum, day) => wSum + (day.contributionCount || 0), 0),
-      0
-    );
+    return map;
   }, [realData]);
 
-  // Compute total queued commits
-  const totalQueuedCommits = React.useMemo(() => {
-    return Object.values(queue).reduce((sum, count) => sum + count, 0);
-  }, [queue]);
+  const cells = useMemo(() => {
+    const now = new Date();
+    return Array.from({ length: 53 }, (_, week) =>
+      Array.from({ length: 7 }, (_, day) => {
+        const d = yearGridToDate(week, day, year);
+        return { date: toDateString(d), disabled: !isPaintableDate(d, year, now) };
+      })
+    );
+  }, [year]);
 
-  const years = Array.from({ length: 7 }, (_, i) => new Date().getFullYear() - i);
+  const totalContributions = useMemo(() => {
+    let sum = 0;
+    for (const [date, count] of realByDate) {
+      if (date.startsWith(`${year}-`)) sum += count;
+    }
+    return sum;
+  }, [realByDate, year]);
+
+  const totalQueued = useMemo(() => Object.values(queue).reduce((sum, c) => sum + c, 0), [queue]);
+
+  const applyAt = useCallback(
+    (date: string) => {
+      if (dragRef.current === 'remove') clearCell(date);
+      else if (dragRef.current === 'add') setCell(date, intensity);
+    },
+    [clearCell, setCell, intensity]
+  );
+
+  useEffect(() => {
+    const stop = () => {
+      dragRef.current = null;
+    };
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
+    window.addEventListener('blur', stop);
+    return () => {
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+      window.removeEventListener('blur', stop);
+    };
+  }, []);
+
+  const cellFromTarget = (target: EventTarget | null): HTMLElement | null =>
+    target instanceof Element ? target.closest<HTMLElement>('[data-date]') : null;
+
+  const showTooltip = (el: HTMLElement) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const cell = el.getBoundingClientRect();
+    const box = wrapper.getBoundingClientRect();
+    setHover({
+      date: el.dataset.date!,
+      left: cell.left - box.left + cell.width / 2,
+      top: cell.top - box.top,
+    });
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const el = cellFromTarget(e.target);
+    if (!el) return;
+    const date = el.dataset.date!;
+
+    if (e.button === 2 || activeTool === 'erase') {
+      dragRef.current = 'remove';
+    } else if (e.button === 0) {
+      // Painting over a cell that already holds this intensity removes it
+      dragRef.current = queue[date] === intensity ? 'remove' : 'add';
+    } else {
+      return;
+    }
+    applyAt(date);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    // Touch pointers stay captured to the first cell, so resolve the cell under the finger
+    const el = cellFromTarget(document.elementFromPoint(e.clientX, e.clientY));
+    if (!el) {
+      setHover(null);
+      return;
+    }
+    if (el.dataset.date !== hover?.date) showTooltip(el);
+    if (dragRef.current) applyAt(el.dataset.date!);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const el = cellFromTarget(e.target);
+    if (!el) return;
+    e.preventDefault();
+    const date = el.dataset.date!;
+    if (activeTool === 'erase' || queue[date] === intensity) clearCell(date);
+    else setCell(date, intensity);
+  };
+
+  const hoverReal = hover ? realByDate.get(hover.date) ?? 0 : 0;
+  const hoverQueued = hover ? queue[hover.date] ?? 0 : 0;
 
   return (
-    <div className="w-full select-none font-mono">
-      {/* Monkeytype Heatmap Card */}
-      <div className="w-full bg-[#182319] border border-[#263626] rounded-xl p-5 shadow-lg">
-        {/* Top Control Bar inside card */}
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#263626]/70">
+    <div className="w-full select-none">
+      <div className="w-full bg-panel border border-line rounded-xl p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 text-xs text-dim">
           <div className="flex items-center gap-3">
-            {/* Year selector styled as Monkeytype dropdown */}
-            <Select
-              value={year.toString()}
-              onValueChange={(val) => val && onYearChange?.(parseInt(val, 10))}
-            >
-              <SelectTrigger className="h-7 w-[140px] text-xs bg-[#111810] border-[#263626] text-[#8cd48f] font-mono focus:ring-0">
-                <SelectValue placeholder="year" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#182319] border-[#263626] text-[#dbead9] text-xs font-mono">
-                {years.map((y) => (
-                  <SelectItem key={y} value={y.toString()}>
-                    {y} activity
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <span className="text-xs text-[#607b62]">
-              {totalContributions.toLocaleString()} contributions
+            <span>
+              {totalContributions.toLocaleString()} contributions in {year}
             </span>
-
-            {totalQueuedCommits > 0 && (
-              <span className="text-xs px-2 py-0.5 rounded bg-[#eab308]/15 border border-[#eab308]/40 text-[#f59e0b] font-mono">
-                +{totalQueuedCommits.toLocaleString()} queued
+            {totalQueued > 0 && (
+              <span className="px-2 py-0.5 rounded bg-panel-2 border border-line-strong text-fg">
+                +{totalQueued.toLocaleString()} queued
               </span>
             )}
           </div>
 
-          {/* Monkeytype Heatmap Legend */}
-          <div className="flex items-center gap-1.5 text-xs text-[#607b62]">
+          <div className="flex items-center gap-1.5">
             <span>less</span>
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#141d14] border border-[#1e2b1f]" />
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#234226]" />
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#36683b]" />
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#5ca162]" />
-            <div className="w-[11px] h-[11px] rounded-[2px] bg-[#8cd48f]" />
+            {LEVEL_COLORS.map((color) => (
+              <span key={color} className="w-[11px] h-[11px] rounded-[3px]" style={{ backgroundColor: color }} />
+            ))}
             <span>more</span>
           </div>
         </div>
 
-        {/* The Grid: 53 Columns × 7 Rows */}
         <div className="overflow-x-auto pb-2">
-          <div className="inline-block min-w-[940px]">
+          <div ref={wrapperRef} className="relative inline-block min-w-[900px]">
             <div className="flex items-start">
-              {/* Day Labels on the Left: monday, wednesday, friday */}
               <GraphDayLabels />
 
-              {/* Cells Grid */}
-              <div className="flex gap-[3px]">
-                {Array.from({ length: 53 }, (_, week) => (
+              <div
+                className="heat-grid flex gap-[3px]"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerLeave={() => setHover(null)}
+                onContextMenu={(e) => {
+                  if (cellFromTarget(e.target)) e.preventDefault();
+                }}
+                onKeyDown={handleKeyDown}
+              >
+                {cells.map((column, week) => (
                   <div key={week} className="flex flex-col gap-[3px]">
-                    {Array.from({ length: 7 }, (_, day) => {
-                      const dayData = realData?.[week]?.[day];
-                      const realCount = dayData?.contributionCount ?? 0;
-                      const dateStr =
-                        dayData?.date || yearGridToDate(week, day, year).toISOString().split('T')[0];
-                      const key = `${week}-${day}`;
-                      const queuedCount = queue[key] ?? 0;
-                      const customColor = dayData?.color;
-                      const isPopoverOpen = activePopoverKey === key;
-
+                    {column.map(({ date, disabled }) => {
+                      const real = realByDate.get(date) ?? 0;
+                      const queued = queue[date] ?? 0;
                       return (
                         <GraphCell
-                          key={day}
-                          week={week}
-                          day={day}
-                          dateStr={dateStr}
-                          realCount={realCount}
-                          queuedCount={queuedCount}
-                          customColor={customColor}
-                          isPopoverOpen={isPopoverOpen}
-                          onPopoverOpenChange={(open) => {
-                            if (!dragMoved) {
-                              setActivePopoverKey(open ? key : null);
-                            }
-                          }}
-                          onSetCommitCount={(count) => {
-                            if (count <= 0) {
-                              clearCell(week, day);
-                            } else {
-                              setCell(week, day, count);
-                            }
-                          }}
-                          onCellMouseDown={handleCellMouseDown}
-                          onCellMouseEnter={handleCellMouseEnter}
-                          onCellContextMenu={handleCellContextMenu}
+                          key={date}
+                          date={date}
+                          label={`${formatDate(date)}: ${real} existing, ${queued} queued`}
+                          realCount={real}
+                          queuedCount={queued}
+                          disabled={disabled}
                         />
                       );
                     })}
@@ -205,15 +211,25 @@ export default function ContributionGraph({
               </div>
             </div>
 
-            {/* Month Labels along the Bottom */}
             <GraphMonthLabels year={year} />
 
-            {/* Monkeytype Centered Footnote */}
-            <div className="mt-4 text-center text-[10px] text-[#607b62]">
-              Note: All activity data is using UTC time.
-            </div>
+            {hover && (
+              <div
+                role="tooltip"
+                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap rounded-md border border-line-strong bg-canvas px-2.5 py-1 text-xs text-fg shadow-xl"
+                style={{ left: hover.left, top: hover.top }}
+              >
+                <span className="text-mint">
+                  {hoverQueued > 0 ? `${hoverQueued} queued` : `${hoverReal} contribution${hoverReal === 1 ? '' : 's'}`}
+                </span>
+                {hoverQueued > 0 && hoverReal > 0 && <span className="text-dim"> + {hoverReal} existing</span>}
+                <span className="text-dim"> on {formatDate(hover.date)}</span>
+              </div>
+            )}
           </div>
         </div>
+
+        <p className="mt-3 text-center text-[11px] text-dim">dates use UTC</p>
       </div>
     </div>
   );

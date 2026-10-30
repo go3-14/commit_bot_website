@@ -25,7 +25,7 @@ export default function RandomTool() {
     for (let week = 0; week < 53; week++) {
       for (let day = 0; day < 7; day++) {
         const date = yearGridToDate(week, day, year);
-        if (date.getFullYear() !== year) continue;
+        if (date.getUTCFullYear() !== year) continue;
         if (weekdaysOnly && (day === 0 || day === 6)) continue;
         validCells.push({ week, day });
       }
@@ -62,20 +62,20 @@ export default function RandomTool() {
     const entries = Object.values(cellMap);
     applyBulkCells(entries);
 
-    setFeedback(`Randomly scattered ${totalCommits - remaining} commits across ${entries.length} dates!`);
+    setFeedback(`${totalCommits - remaining} commits queued on ${entries.length} days.`);
     setTimeout(() => setFeedback(null), 4000);
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#111810] border border-[#263626] font-mono">
-      <div className="flex items-center justify-between border-b border-[#263626] pb-3">
-        <span className="text-xs text-[#dbead9] flex items-center gap-2">
-          <Shuffle className="w-4 h-4 text-[#8cd48f]" />
-          <span>random commit scatter</span>
+    <div className="flex flex-col gap-4 p-4 rounded-xl bg-canvas border border-line font-mono">
+      <div className="flex items-center justify-between border-b border-line pb-3">
+        <span className="text-xs text-fg flex items-center gap-2">
+          <Shuffle className="w-4 h-4 text-mint" />
+          <span>random</span>
         </span>
 
         {feedback && (
-          <span className="text-xs text-[#8cd48f] flex items-center gap-1 animate-pulse">
+          <span className="text-xs text-mint flex items-center gap-1">
             <Check className="w-3.5 h-3.5" />
             <span>{feedback}</span>
           </span>
@@ -84,7 +84,7 @@ export default function RandomTool() {
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="w-[130px]">
-          <label className="text-[11px] text-[#607b62] block mb-1">
+          <label className="text-[11px] text-dim block mb-1">
             total commits
           </label>
           <Input
@@ -93,12 +93,12 @@ export default function RandomTool() {
             max={2000}
             value={totalCommits}
             onChange={(e) => setTotalCommits(Math.max(1, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+            className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
           />
         </div>
 
         <div className="w-[130px]">
-          <label className="text-[11px] text-[#607b62] block mb-1">
+          <label className="text-[11px] text-dim block mb-1">
             max commits / day
           </label>
           <Input
@@ -107,12 +107,12 @@ export default function RandomTool() {
             max={10}
             value={maxPerDay}
             onChange={(e) => setMaxPerDay(Math.max(1, parseInt(e.target.value || '1', 10)))}
-            className="h-8 text-xs bg-[#182319] border-[#263626] text-[#dbead9] font-mono focus:border-[#374d37]"
+            className="h-8 text-xs bg-panel border-line text-fg font-mono focus:border-line-strong"
           />
         </div>
 
         <div className="flex items-center gap-3 pt-4">
-          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-[#607b62]">
+          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-dim">
             <Checkbox
               checked={weekdaysOnly}
               onCheckedChange={(checked) => setWeekdaysOnly(Boolean(checked))}
@@ -126,15 +126,15 @@ export default function RandomTool() {
             type="button"
             size="sm"
             onClick={handleScatter}
-            className="bg-[#99d19c] hover:bg-[#8cd48f] text-[#111810] text-xs h-8 px-4 font-bold"
+            className="bg-mint-strong hover:bg-mint text-canvas text-xs h-8 px-4 font-bold"
           >
             scatter {totalCommits}
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-[11px] text-[#607b62]">
-        <AlertCircle className="w-3.5 h-3.5 text-[#607b62]" />
+      <div className="flex items-center gap-2 text-[11px] text-dim">
+        <AlertCircle className="w-3.5 h-3.5 text-dim" />
         <span>
           scatters commits across random dates in {year}.
         </span>
