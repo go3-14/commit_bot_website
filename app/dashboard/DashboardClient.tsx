@@ -40,6 +40,7 @@ interface DashboardClientProps {
   initialGraph: ContributionDay[][];
   initialRepos: RepoInfo[];
   currentYear: number;
+  authError?: string | null;
 }
 
 function GithubIcon({ className = 'w-4 h-4' }: { className?: string }) {
@@ -60,6 +61,7 @@ export default function DashboardClient({
   initialGraph,
   initialRepos,
   currentYear,
+  authError = null,
 }: DashboardClientProps) {
   const { year, setYear, setSelectedRepo, getCommitPlan } = useGraphStore();
   const [graphData, setGraphData] = useState<ContributionDay[][]>(initialGraph);
@@ -222,6 +224,12 @@ export default function DashboardClient({
         <div className="flex md:hidden items-center justify-between p-3 rounded-xl border border-[#263626] bg-[#182319]">
           <RepoSelector userLogin={user?.login} initialRepos={initialRepos} />
         </div>
+
+        {authError && (
+          <div role="alert" className="p-3 rounded-xl bg-[#182319] border border-red-500/40 text-red-400 text-xs">
+            {authError}
+          </div>
+        )}
 
         {/* Execution Success Notification */}
         {successBanner && (

@@ -1,4 +1,5 @@
 import { getSession } from '@/lib/session';
+import { authErrorMessage } from '@/lib/auth-errors';
 import DashboardClient from './dashboard/DashboardClient';
 import { 
   fetchUser, 
@@ -27,7 +28,12 @@ function generateStarterGraph(year: number): ContributionDay[][] {
   return weeks;
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string | string[] }>;
+}) {
+  const authError = authErrorMessage((await searchParams).error);
   const session = await getSession();
   const token = session?.token;
   const currentYear = new Date().getFullYear();
@@ -48,6 +54,7 @@ export default async function HomePage() {
           initialGraph={initialGraph}
           initialRepos={initialRepos}
           currentYear={currentYear}
+          authError={authError}
         />
       );
     } catch (err: unknown) {
@@ -66,6 +73,7 @@ export default async function HomePage() {
       initialGraph={starterGraph}
       initialRepos={[]}
       currentYear={currentYear}
+      authError={authError}
     />
   );
 }
