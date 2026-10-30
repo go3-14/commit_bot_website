@@ -176,7 +176,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
         </div>
 
         <div className="overflow-x-auto pb-2">
-          <div ref={wrapperRef} className="relative inline-block min-w-[900px]">
+          <div ref={wrapperRef} className="relative w-max mx-auto">
             <div className="flex items-start">
               <GraphDayLabels />
 
