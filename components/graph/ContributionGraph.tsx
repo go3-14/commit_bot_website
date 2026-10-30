@@ -29,7 +29,7 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
 };
 
 // Keeps the centered tooltip from hanging past the first and last columns
-const TOOLTIP_EDGE = 110;
+const TOOLTIP_EDGE = 150;
 
 function formatDate(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', DATE_FORMAT).toLowerCase();
