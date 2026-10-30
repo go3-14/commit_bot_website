@@ -4,6 +4,7 @@ import { getSessionFromRequest } from '@/lib/session';
 import { rejectCrossOrigin, requireJson } from '@/lib/security';
 import { executeCommitPlan } from '@/lib/commit-executor';
 import { fetchPrimaryEmail, fetchUser } from '@/lib/github-api';
+import { acquireRun, allowRequest, releaseRun } from '@/lib/rate-limit';
 import { isValidRepoName, validatePlan } from '@/lib/plan-validation';
 
 export const runtime = 'nodejs';
@@ -17,6 +18,11 @@ export async function POST(req: NextRequest) {
   const session = getSessionFromRequest(req);
   if (!session) {
     return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+  }
+
+  const userKey = session.login.toLowerCase();
+  if (!allowRequest(`execute:${userKey}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 });
   }
 
   let body: unknown;
@@ -64,6 +70,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Could not access that repository' }, { status: 400 });
   }
 
+  if (!acquireRun(userKey)) {
+    return NextResponse.json({ error: 'A run is already in progress' }, { status: 409 });
+  }
+
   const encoder = new TextEncoder();
   const totalCommits = plan.reduce((sum, p) => sum + p.count, 0);
 
@@ -89,6 +99,7 @@ export async function POST(req: NextRequest) {
         console.error('Execution stream error:', err);
         send({ error: 'Execution failed. Some commits may already have been pushed.' });
       } finally {
+        releaseRun(userKey);
         try {
           controller.close();
         } catch {
