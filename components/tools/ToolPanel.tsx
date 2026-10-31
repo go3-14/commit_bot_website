@@ -31,20 +31,20 @@ export default function ToolPanel() {
     { id: 'random', label: 'random' },
   ];
 
-  const base = 'px-3 py-1.5 rounded-md text-xs transition-colors';
+  const base = 'px-3 py-1.5 pointer-coarse:py-2.5 rounded-md text-xs transition-colors';
   const idle = 'text-dim hover:text-fg';
   const on = 'bg-mint-strong text-canvas font-bold';
 
   return (
     <div className="w-full flex flex-wrap items-center gap-3 bg-panel border border-line p-2 rounded-xl select-none">
-      <div className="flex items-center gap-1 rounded-lg bg-canvas p-1" role="group" aria-label="paint intensity">
+      <div className="flex w-full sm:w-auto items-center gap-1 rounded-lg bg-canvas p-1" role="group" aria-label="paint intensity">
         {[1, 3, 5, 10].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => selectPaint(n)}
             aria-pressed={activeTool === 'paint' && intensity === n}
-            className={`${base} ${activeTool === 'paint' && intensity === n ? on : idle}`}
+            className={`${base} max-sm:flex-1 ${activeTool === 'paint' && intensity === n ? on : idle}`}
           >
             {n}
           </button>
@@ -56,7 +56,7 @@ export default function ToolPanel() {
             setActiveSheet(null);
           }}
           aria-pressed={activeTool === 'erase'}
-          className={`${base} ${activeTool === 'erase' ? 'bg-danger text-white font-bold' : idle}`}
+          className={`${base} max-sm:flex-1 ${activeTool === 'erase' ? 'bg-danger text-white font-bold' : idle}`}
         >
           erase
         </button>
@@ -74,7 +74,7 @@ export default function ToolPanel() {
         {paintByDrag ? 'drag paints' : 'drag scrolls'}
       </button>
 
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="grid grid-cols-2 gap-1 w-full sm:flex sm:w-auto sm:flex-wrap sm:items-center">
         {generators.map((g) => (
           <button
             key={g.id}
