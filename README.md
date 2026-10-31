@@ -156,4 +156,4 @@ Built with Next.js (App Router), React, TypeScript, Tailwind CSS, Zustand, shadc
 
 ## Responsible use
 
-Backdated commits are real commits with the dates you choose, visible in the repository's history. This project is meant for graph art and experimenting. Do not use it to misrepresent your work to employers or others.
+This is a personal hobby project, built for fun and to experiment with the GitHub API. I don't encourage or support faking a public profile, and I have never used this tool on my own main account. Backdated commits are real commits with the dates you choose, and they stay visible in the repository's history. Please don't use it to misrepresent your work to employers or anyone else. The app shows this notice every time it opens.
