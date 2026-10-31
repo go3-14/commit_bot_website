@@ -10,7 +10,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'commit-bot',
+  title: 'phakeit',
   description: 'Paint your GitHub contribution graph with backdated commits.',
 };
 

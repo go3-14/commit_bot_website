@@ -137,7 +137,7 @@ export default function DashboardClient({
           <div className="flex items-center gap-4 min-w-0">
             <Link href="/" className="flex items-center gap-2 shrink-0 text-mint hover:text-mint-strong transition-colors">
               <GitCommit className="w-5 h-5" />
-              <span className="font-bold text-sm tracking-tight">commit-bot</span>
+              <span className="font-bold text-sm tracking-tight">phakeit</span>
             </Link>
 
             <div className="h-4 w-px bg-line hidden md:block" />
