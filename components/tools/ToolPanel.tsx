@@ -91,7 +91,7 @@ export default function ToolPanel() {
       <Sheet open={activeSheet !== null} onOpenChange={(open) => !open && setActiveSheet(null)}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-md bg-panel border-l border-line text-fg p-6 shadow-2xl overflow-y-auto font-mono"
+          className="max-sm:w-full! sm:max-w-md bg-panel border-l border-line text-fg p-4 sm:p-6 shadow-2xl overflow-y-auto font-mono"
         >
           {activeSheet === 'pattern' && (
             <>
