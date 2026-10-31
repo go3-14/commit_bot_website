@@ -60,7 +60,7 @@ export async function createRepo(
   const octokit = new Octokit({ auth: token });
   const { data } = await octokit.repos.createForAuthenticatedUser({
     name,
-    description: 'GitHub contribution graph repository created by commit-bot-web',
+    description: 'GitHub contribution graph repository created by phakeit',
     private: isPrivate,
     auto_init: true, // creates initial commit so default branch exists
   });
