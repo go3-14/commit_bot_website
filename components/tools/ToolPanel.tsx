@@ -80,7 +80,7 @@ export default function ToolPanel() {
             key={g.id}
             type="button"
             onClick={() => setActiveSheet(g.id)}
-            className={`${base} ${activeSheet === g.id ? on : idle}`}
+            className={`${base} max-sm:border max-sm:border-line ${activeSheet === g.id ? on : idle}`}
           >
             {g.label}
           </button>

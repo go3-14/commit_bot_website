@@ -45,7 +45,7 @@ export default function CommitQueue({ onExecute }: CommitQueueProps) {
                 onClick={() => setShowList(!showList)}
                 className="text-xs text-dim hover:text-fg px-2.5 py-2 sm:py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
               >
-                <span>{showList ? 'hide days' : 'show days'}</span>
+                <span className="whitespace-nowrap">{showList ? 'hide days' : 'show days'}</span>
                 {showList ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
 
