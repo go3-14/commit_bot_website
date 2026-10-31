@@ -117,9 +117,21 @@
   --gap: 3px;
 }
 
+/* Larger tap targets on touch screens */
+@media (pointer: coarse) {
+  :root {
+    --cell: 18px;
+  }
+}
+
 .heat-grid {
-  touch-action: none;
+  touch-action: pan-x pan-y;
   gap: var(--gap);
+}
+
+/* Paint mode on touch screens: the finger paints instead of scrolling */
+.heat-grid[data-paint-drag='true'] {
+  touch-action: none;
 }
 
 .heat-grid > div {

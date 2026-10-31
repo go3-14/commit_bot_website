@@ -41,9 +41,13 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
   const intensity = useGraphStore((s) => s.intensity);
   const setCell = useGraphStore((s) => s.setCell);
   const clearCell = useGraphStore((s) => s.clearCell);
+  const paintByDrag = useGraphStore((s) => s.paintByDrag);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<'add' | 'remove' | null>(null);
+  // A touch that may turn into a scroll: applied on release, dropped if the browser cancels it
+  const pendingRef = useRef<{ date: string; mode: 'add' | 'remove' } | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
 
   // The first and last weeks of a GitHub year are partial, so look contributions up by date, not by position
@@ -67,6 +71,21 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
     );
   }, [year]);
 
+  // On a narrow screen only part of the year fits, so open on the current week (or the start of a past year)
+  useEffect(() => {
+    const box = scrollRef.current;
+    if (!box) return;
+    const today = toDateString(new Date());
+    const week = cells.findIndex((column) => column.some((c) => c.date === today));
+    const column = week >= 0 ? box.querySelector<HTMLElement>(`.heat-grid > div:nth-child(${week + 1})`) : null;
+    if (!column) {
+      box.scrollLeft = 0;
+      return;
+    }
+    const left = column.getBoundingClientRect().left - box.getBoundingClientRect().left + box.scrollLeft;
+    box.scrollLeft = Math.max(0, left - box.clientWidth / 2);
+  }, [cells]);
+
   const totalContributions = useMemo(() => {
     let sum = 0;
     for (const [date, count] of realByDate) {
@@ -88,16 +107,25 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
   useEffect(() => {
     const stop = () => {
       dragRef.current = null;
+      pendingRef.current = null;
     };
-    window.addEventListener('pointerup', stop);
+    const release = () => {
+      const pending = pendingRef.current;
+      if (pending) {
+        if (pending.mode === 'remove') clearCell(pending.date);
+        else setCell(pending.date, intensity);
+      }
+      stop();
+    };
+    window.addEventListener('pointerup', release);
     window.addEventListener('pointercancel', stop);
     window.addEventListener('blur', stop);
     return () => {
-      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', stop);
       window.removeEventListener('blur', stop);
     };
-  }, []);
+  }, [clearCell, setCell, intensity]);
 
   const cellFromTarget = (target: EventTarget | null): HTMLElement | null =>
     target instanceof Element ? target.closest<HTMLElement>('[data-date]') : null;
@@ -120,12 +148,21 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
     if (!el) return;
     const date = el.dataset.date!;
 
+    showTooltip(el);
+
     if (e.button === 2 || activeTool === 'erase') {
       dragRef.current = 'remove';
     } else if (e.button === 0) {
       // Painting over a cell that already holds this intensity removes it
       dragRef.current = queue[date] === intensity ? 'remove' : 'add';
     } else {
+      return;
+    }
+
+    if (e.pointerType === 'touch' && !paintByDrag) {
+      // Wait to see whether this touch is a tap or the start of a scroll
+      pendingRef.current = { date, mode: dragRef.current };
+      dragRef.current = null;
       return;
     }
     applyAt(date);
@@ -157,7 +194,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
 
   return (
     <div className="w-full select-none">
-      <div className="w-full bg-panel border border-line rounded-xl p-5">
+      <div className="w-full bg-panel border border-line rounded-xl p-3 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 text-xs text-dim">
           <div className="flex items-center gap-3">
             <span>
@@ -179,16 +216,20 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
           </div>
         </div>
 
-        <div className="overflow-x-auto pt-10 pb-2">
+        <div ref={scrollRef} className="overflow-x-auto pt-10 pointer-coarse:pt-2 pb-2">
           <div ref={wrapperRef} className="relative w-max mx-auto">
             <div className="flex items-start">
               <GraphDayLabels />
 
               <div
                 className="heat-grid flex"
+                data-paint-drag={paintByDrag}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
-                onPointerLeave={() => setHover(null)}
+                onPointerLeave={(e) => {
+                  // On touch the finger lifts straight off the grid; keep the last day shown
+                  if (e.pointerType === 'mouse') setHover(null);
+                }}
                 onContextMenu={(e) => {
                   if (cellFromTarget(e.target)) e.preventDefault();
                 }}
@@ -220,7 +261,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
             {hover && (
               <div
                 role="tooltip"
-                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap rounded-md border border-line-strong bg-canvas px-2.5 py-1 text-xs text-fg shadow-xl"
+                className="pointer-events-none absolute z-20 pointer-coarse:hidden -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap rounded-md border border-line-strong bg-canvas px-2.5 py-1 text-xs text-fg shadow-xl"
                 style={{ left: hover.left, top: hover.top }}
               >
                 <span className="text-mint">
@@ -232,6 +273,20 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
             )}
           </div>
         </div>
+
+        {/* Touch screens have no hover, so the selected day is spelled out under the graph */}
+        <p className="hidden pointer-coarse:block mt-2 min-h-4 text-center text-xs text-fg">
+          {hover ? (
+            <>
+              <span className="text-mint">
+                {hoverQueued > 0 ? `${hoverQueued} queued` : `${hoverReal} contribution${hoverReal === 1 ? '' : 's'}`}
+              </span>
+              <span className="text-dim"> on {formatDate(hover.date)}</span>
+            </>
+          ) : (
+            <span className="text-dim">tap a day to see its date</span>
+          )}
+        </p>
 
         <p className="mt-3 text-center text-[11px] text-dim">dates use UTC</p>
       </div>
