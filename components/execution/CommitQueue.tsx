@@ -23,7 +23,7 @@ export default function CommitQueue({ onExecute }: CommitQueueProps) {
   else if (totalCommits > 0 && !selectedRepo) hint = 'Select a repository to push to.';
 
   return (
-    <div className="w-full select-none">
+    <div className="w-full select-none max-sm:sticky max-sm:bottom-3 max-sm:z-30">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-line bg-panel">
         <div className="text-xs">
           {totalCommits > 0 ? (
@@ -37,13 +37,13 @@ export default function CommitQueue({ onExecute }: CommitQueueProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full sm:w-auto items-center gap-2">
           {totalCommits > 0 && (
             <>
               <button
                 type="button"
                 onClick={() => setShowList(!showList)}
-                className="text-xs text-dim hover:text-fg px-2.5 py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
+                className="text-xs text-dim hover:text-fg px-2.5 py-2 sm:py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
               >
                 <span>{showList ? 'hide days' : 'show days'}</span>
                 {showList ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -52,7 +52,7 @@ export default function CommitQueue({ onExecute }: CommitQueueProps) {
               <button
                 type="button"
                 onClick={clearQueue}
-                className="text-xs text-dim hover:text-danger px-2.5 py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
+                className="text-xs text-dim hover:text-danger px-2.5 py-2 sm:py-1.5 rounded-md border border-line flex items-center gap-1 transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
                 <span>clear</span>
@@ -65,7 +65,7 @@ export default function CommitQueue({ onExecute }: CommitQueueProps) {
             size="sm"
             onClick={onExecute}
             disabled={totalCommits === 0 || overLimit || !selectedRepo}
-            className="bg-mint-strong hover:bg-mint text-canvas font-bold text-xs h-8 px-4 rounded-lg gap-1.5 disabled:opacity-40 disabled:bg-line disabled:text-dim"
+            className="max-sm:flex-1 bg-mint-strong hover:bg-mint text-canvas font-bold text-xs h-10 sm:h-8 px-4 rounded-lg gap-1.5 disabled:opacity-40 disabled:bg-line disabled:text-dim"
           >
             <Play className="w-3 h-3 fill-current" />
             <span>push commits</span>
