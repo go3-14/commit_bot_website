@@ -1,9 +1,11 @@
 <div align="center">
 
-# commit-bot
+# phakeit
 
 **Paint your GitHub contribution graph.**<br>
-Draw on a heatmap, and commit-bot creates the backdated commits for you through the GitHub API. No local git required.
+Draw on a heatmap, and phakeit creates the backdated commits for you through the GitHub API. No local git required.
+
+[**Live demo: phakeit.vercel.app**](https://phakeit.vercel.app)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
@@ -12,7 +14,7 @@ Draw on a heatmap, and commit-bot creates the backdated commits for you through 
 
 <br>
 
-![commit-bot interface showing the contribution heatmap, paint tools and commit queue](docs/screenshots/overview.png)
+![phakeit interface showing the contribution heatmap, paint tools and commit queue](docs/screenshots/overview.png)
 
 </div>
 
@@ -92,7 +94,7 @@ For a first run, use a throwaway repository and a small plan.
 | --- | --- | --- |
 | `GITHUB_CLIENT_ID` | yes | Client ID of your GitHub OAuth App. |
 | `GITHUB_CLIENT_SECRET` | yes | Client secret of the OAuth App. Server only. |
-| `NEXT_PUBLIC_BASE_URL` | production | Exact public origin, for example `https://example.com`. Used for the OAuth redirect URI and the CSRF origin check. Defaults to `http://localhost:3000` in development. |
+| `NEXT_PUBLIC_BASE_URL` | production | Exact public origin, for example `https://phakeit.vercel.app`. Used for the OAuth redirect URI and the CSRF origin check. Defaults to `http://localhost:3000` in development. |
 | `SESSION_SECRET` | yes | At least 32 characters. Encrypts the session cookie. |
 
 Generate a session secret:
@@ -105,7 +107,7 @@ Scripts: `npm run dev`, `npm run build`, `npm run start`, `npm run lint`.
 
 ## Deploying
 
-1. Create a **separate production OAuth App** with your domain as the homepage and `https://<your-domain>/api/auth/github/callback` as the callback URL.
+1. Create a **separate production OAuth App** with your domain as the homepage and `https://<your-domain>/api/auth/github/callback` (for the live site: `https://phakeit.vercel.app/api/auth/github/callback`) as the callback URL.
 2. Set the four environment variables on your host (for example in the Vercel project settings). Use a new `SESSION_SECRET`, not the one from development.
 3. Serve the site over HTTPS. The `__Host-` session cookie and the HSTS header require it.
 4. After deploying, test with a throwaway repository: sign in, push a few commits, then sign out.
