@@ -133,8 +133,8 @@ export default function DashboardClient({
   return (
     <div className="min-h-screen flex flex-col bg-canvas text-fg">
       <header className="border-b border-line bg-canvas/90 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 min-w-0">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link href="/" className="flex items-center gap-2 shrink-0 text-mint hover:text-mint-strong transition-colors">
               <GitCommit className="w-5 h-5" />
               <span className="font-bold text-sm tracking-tight">phakeit</span>
@@ -194,7 +194,8 @@ export default function DashboardClient({
                 className="text-xs font-bold text-canvas bg-mint-strong hover:bg-mint px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
-                <span>sign in with github</span>
+                <span className="sm:hidden">sign in</span>
+                <span className="hidden sm:inline">sign in with github</span>
               </Link>
             )}
           </div>
@@ -219,7 +220,7 @@ export default function DashboardClient({
           </div>
         )}
 
-        <dl className="flex flex-wrap items-baseline gap-x-8 gap-y-1 px-1">
+        <dl className="flex flex-wrap items-baseline gap-x-5 sm:gap-x-8 gap-y-1 px-1">
           <div className="flex items-baseline gap-2">
             <dd className="text-2xl font-bold text-mint tabular-nums">{totalCommits}</dd>
             <dt className="text-xs text-dim">queued commits</dt>
