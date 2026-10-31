@@ -42,6 +42,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
   const setCell = useGraphStore((s) => s.setCell);
   const clearCell = useGraphStore((s) => s.clearCell);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<'add' | 'remove' | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
@@ -66,6 +67,21 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
       })
     );
   }, [year]);
+
+  // On a narrow screen only part of the year fits, so open on the current week (or the start of a past year)
+  useEffect(() => {
+    const box = scrollRef.current;
+    if (!box) return;
+    const today = toDateString(new Date());
+    const week = cells.findIndex((column) => column.some((c) => c.date === today));
+    const column = week >= 0 ? box.querySelector<HTMLElement>(`.heat-grid > div:nth-child(${week + 1})`) : null;
+    if (!column) {
+      box.scrollLeft = 0;
+      return;
+    }
+    const left = column.getBoundingClientRect().left - box.getBoundingClientRect().left + box.scrollLeft;
+    box.scrollLeft = Math.max(0, left - box.clientWidth / 2);
+  }, [cells]);
 
   const totalContributions = useMemo(() => {
     let sum = 0;
@@ -181,7 +197,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
           </div>
         </div>
 
-        <div className="overflow-x-auto pt-10 pointer-coarse:pt-2 pb-2">
+        <div ref={scrollRef} className="overflow-x-auto pt-10 pointer-coarse:pt-2 pb-2">
           <div ref={wrapperRef} className="relative w-max mx-auto">
             <div className="flex items-start">
               <GraphDayLabels />
