@@ -31,6 +31,7 @@ import ToolPanel from '@/components/tools/ToolPanel';
 import CommitQueue from '@/components/execution/CommitQueue';
 import ExecutionModal from '@/components/execution/ExecutionModal';
 import RepoSelector from '@/components/execution/RepoSelector';
+import NoticeDialog from '@/components/NoticeDialog';
 import { useGraphStore } from '@/store/graph-store';
 import { GitHubUser, ContributionDay, RepoInfo } from '@/types';
 
@@ -242,6 +243,8 @@ export default function DashboardClient({
         <CommitQueue onExecute={handleExecuteClick} />
 
         {user && <YearInsights data={graphData} year={year} />}
+
+        <NoticeDialog />
 
         {user && isExecutionModalOpen && (
           <ExecutionModal
