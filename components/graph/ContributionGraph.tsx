@@ -120,6 +120,8 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
     if (!el) return;
     const date = el.dataset.date!;
 
+    showTooltip(el);
+
     if (e.button === 2 || activeTool === 'erase') {
       dragRef.current = 'remove';
     } else if (e.button === 0) {
@@ -157,7 +159,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
 
   return (
     <div className="w-full select-none">
-      <div className="w-full bg-panel border border-line rounded-xl p-5">
+      <div className="w-full bg-panel border border-line rounded-xl p-3 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 text-xs text-dim">
           <div className="flex items-center gap-3">
             <span>
@@ -179,7 +181,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
           </div>
         </div>
 
-        <div className="overflow-x-auto pt-10 pb-2">
+        <div className="overflow-x-auto pt-10 pointer-coarse:pt-2 pb-2">
           <div ref={wrapperRef} className="relative w-max mx-auto">
             <div className="flex items-start">
               <GraphDayLabels />
@@ -188,7 +190,10 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
                 className="heat-grid flex"
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
-                onPointerLeave={() => setHover(null)}
+                onPointerLeave={(e) => {
+                  // On touch the finger lifts straight off the grid; keep the last day shown
+                  if (e.pointerType === 'mouse') setHover(null);
+                }}
                 onContextMenu={(e) => {
                   if (cellFromTarget(e.target)) e.preventDefault();
                 }}
@@ -220,7 +225,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
             {hover && (
               <div
                 role="tooltip"
-                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap rounded-md border border-line-strong bg-canvas px-2.5 py-1 text-xs text-fg shadow-xl"
+                className="pointer-events-none absolute z-20 pointer-coarse:hidden -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap rounded-md border border-line-strong bg-canvas px-2.5 py-1 text-xs text-fg shadow-xl"
                 style={{ left: hover.left, top: hover.top }}
               >
                 <span className="text-mint">
@@ -232,6 +237,20 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
             )}
           </div>
         </div>
+
+        {/* Touch screens have no hover, so the selected day is spelled out under the graph */}
+        <p className="hidden pointer-coarse:block mt-2 min-h-4 text-center text-xs text-fg">
+          {hover ? (
+            <>
+              <span className="text-mint">
+                {hoverQueued > 0 ? `${hoverQueued} queued` : `${hoverReal} contribution${hoverReal === 1 ? '' : 's'}`}
+              </span>
+              <span className="text-dim"> on {formatDate(hover.date)}</span>
+            </>
+          ) : (
+            <span className="text-dim">tap a day to see its date</span>
+          )}
+        </p>
 
         <p className="mt-3 text-center text-[11px] text-dim">dates use UTC</p>
       </div>
