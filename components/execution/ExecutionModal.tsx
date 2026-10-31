@@ -147,7 +147,7 @@ export default function ExecutionModal({ onClose, onSuccess }: ExecutionModalPro
 
   return (
     <Dialog open onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="bg-panel border-line text-fg sm:max-w-md shadow-2xl font-mono">
+      <DialogContent className="bg-panel border-line text-fg sm:max-w-md shadow-2xl font-mono max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-fg text-base font-mono flex items-center gap-2">
             {status === 'executing' && (
