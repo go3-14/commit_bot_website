@@ -41,10 +41,13 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
   const intensity = useGraphStore((s) => s.intensity);
   const setCell = useGraphStore((s) => s.setCell);
   const clearCell = useGraphStore((s) => s.clearCell);
+  const paintByDrag = useGraphStore((s) => s.paintByDrag);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<'add' | 'remove' | null>(null);
+  // A touch that may turn into a scroll: applied on release, dropped if the browser cancels it
+  const pendingRef = useRef<{ date: string; mode: 'add' | 'remove' } | null>(null);
   const [hover, setHover] = useState<HoverState | null>(null);
 
   // The first and last weeks of a GitHub year are partial, so look contributions up by date, not by position
@@ -104,16 +107,25 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
   useEffect(() => {
     const stop = () => {
       dragRef.current = null;
+      pendingRef.current = null;
     };
-    window.addEventListener('pointerup', stop);
+    const release = () => {
+      const pending = pendingRef.current;
+      if (pending) {
+        if (pending.mode === 'remove') clearCell(pending.date);
+        else setCell(pending.date, intensity);
+      }
+      stop();
+    };
+    window.addEventListener('pointerup', release);
     window.addEventListener('pointercancel', stop);
     window.addEventListener('blur', stop);
     return () => {
-      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', stop);
       window.removeEventListener('blur', stop);
     };
-  }, []);
+  }, [clearCell, setCell, intensity]);
 
   const cellFromTarget = (target: EventTarget | null): HTMLElement | null =>
     target instanceof Element ? target.closest<HTMLElement>('[data-date]') : null;
@@ -144,6 +156,13 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
       // Painting over a cell that already holds this intensity removes it
       dragRef.current = queue[date] === intensity ? 'remove' : 'add';
     } else {
+      return;
+    }
+
+    if (e.pointerType === 'touch' && !paintByDrag) {
+      // Wait to see whether this touch is a tap or the start of a scroll
+      pendingRef.current = { date, mode: dragRef.current };
+      dragRef.current = null;
       return;
     }
     applyAt(date);
@@ -204,6 +223,7 @@ export default function ContributionGraph({ realData, year }: ContributionGraphP
 
               <div
                 className="heat-grid flex"
+                data-paint-drag={paintByDrag}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerLeave={(e) => {

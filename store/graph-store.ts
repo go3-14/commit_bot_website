@@ -24,6 +24,9 @@ interface GraphStore {
   // Settings
   intensity: number; // commits per painted cell (default 3)
   setIntensity: (n: number) => void;
+  // Touch only: when on, dragging a finger paints; when off, dragging scrolls the graph
+  paintByDrag: boolean;
+  setPaintByDrag: (on: boolean) => void;
 
   // Selected year
   year: number;
@@ -96,6 +99,8 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
 
   intensity: 3,
   setIntensity: (intensity) => set({ intensity }),
+  paintByDrag: false,
+  setPaintByDrag: (paintByDrag) => set({ paintByDrag }),
 
   year: new Date().getUTCFullYear(),
   setYear: (year) => set({ year }),

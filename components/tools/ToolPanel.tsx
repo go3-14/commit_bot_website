@@ -15,7 +15,7 @@ import FillTool from './FillTool';
 import RandomTool from './RandomTool';
 
 export default function ToolPanel() {
-  const { activeTool, setActiveTool, intensity, setIntensity } = useGraphStore();
+  const { activeTool, setActiveTool, intensity, setIntensity, paintByDrag, setPaintByDrag } = useGraphStore();
   const [activeSheet, setActiveSheet] = useState<'pattern' | 'image' | 'fill' | 'random' | null>(null);
 
   const selectPaint = (n: number) => {
@@ -61,6 +61,18 @@ export default function ToolPanel() {
           erase
         </button>
       </div>
+
+      {/* Touch screens only: choose whether a finger drag paints or scrolls the graph */}
+      <button
+        type="button"
+        onClick={() => setPaintByDrag(!paintByDrag)}
+        aria-pressed={paintByDrag}
+        className={`hidden pointer-coarse:block ${base} border ${
+          paintByDrag ? 'border-mint-strong text-mint' : 'border-line text-dim'
+        }`}
+      >
+        {paintByDrag ? 'drag paints' : 'drag scrolls'}
+      </button>
 
       <div className="flex flex-wrap items-center gap-1">
         {generators.map((g) => (
